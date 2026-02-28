@@ -29,6 +29,8 @@ copy /Y TaT.txt C:\ULDOS
 copy /Y DOS.cmd C:\Windows\System32
 copy /Y README.txt C:\ULDOS
 copy /Y uninstall-ULDOS.cmd C:\ULDOS
+copy /Y killlist.ini C:\ULDOS
+copy /Y loadlist.ini C:\ULDOS
 start notepad C:\ULDOS\TaT.txt
 echo !! PLEASE READ TAT.TXT CAREFULLY !!
 echo Installed ULDOS, use dos in CMD to run

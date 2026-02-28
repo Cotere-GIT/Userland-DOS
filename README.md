@@ -13,10 +13,8 @@ This script is for experienced users ONLY!
 
 To run ULDOS, type dos in a CMD window, it will request administrator privileges and run
 
-To edit starting apps, edit UserlandDOS.cmd in C:/ULDOS and edit :appload
-To edit "starting" closing apps, edit :appkill
-To edit exit closing apps, edit :appexit 
-To edit reload all apps, edit :reloadall
+to edit starting / reload apps edit C:/ULDOS/loadlist.ini
+to edit exiting apps edit C:/ULDOS/killlist.ini
 
 The installer has a UAC backup if the app isn't run as administrator, if you see a UAC window appear twice, 
 the application hasn't been ran as administrator and requests Administrator permissions twice to run both CMD

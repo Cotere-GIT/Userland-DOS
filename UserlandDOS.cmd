@@ -15,32 +15,48 @@ echo off
    rem Kill your apps here (I set some default values)
    rem This is very unoptimized i know
    :: Disabled most auto killing apps -- The user has to set them up
- taskkill -f -im explorer.exe
-:: taskkill -f -im firefox.exe
-:: taskkill -f -im discord.exe
-:: taskkill -f -im foobar2000.exe
-:: taskkill -f -im vlc.exe
-:: taskkill -f -im 7zFM.exe
-:: taskkill -f -im taskmgr.exe
-:: taskkill -f -im regedit.exe
-:: taskkill -f -im notepad.exe
-:: taskkill -f -im notepad++.exe
-:: taskkill -f -im steam.exe
+setlocal enabledelayedexpansion
+set "insection="
+for /f "usebackq tokens=*" %%i in ("killlist.ini") do (
+  set "line=%%i"
+  if "!line:~0,1!"=="[" (
+    set "insection="
+    if /i "!line!"=="[Apps]" set "insection=1"
+  ) else (
+    set "line=!line:;=!"
+    if defined insection if not "!line!"=="" (
+      taskkill /f /im "!line!" 2>nul
+    )
+  )
+)
    cls
     goto appload
 
 :appload
-   rem Load apps here.
-   rem also don,'t forget to add them to reloadall
- start conhost.exe
- start taskmgr.exe
- start notepad.exe
-   rem This is just where i store my apps A: HD ; for you it's probably in C:/
-   :: The user has to set them up.
- :: start "Foobar2000 -- UserlandDOS" "A:/Program Files/foobar2000/foobar2000.exe"
- :: start "Notepad++ -- UserlandDOS" "A:/Program Files/Notepad++/notepad++.exe"
- :: start "Mozilla Firefox -- UserlandDOS" "C:\Program Files\Mozilla Firefox\firefox.exe"
- taskkill cmd.exe
+:: what even tf is that
+setlocal enabledelayedexpansion
+set "insection="
+for /f "usebackq tokens=*" %%i in ("loadlist.ini") do (
+  set "line=%%i"
+  if "!line:~0,1!"=="[" (
+    set "insection="
+    if /i "!line!"=="[Apps]" set "insection=1"
+  ) else (
+    set "line=!line:;=!"
+    if defined insection if not "!line!"=="" (
+      for /f "tokens=1,2 delims==" %%a in ("!line!") do (
+        set "title=%%a"
+        set "path=%%b"
+        if "!path!"=="" (
+          start "!title!"
+        ) else (
+          start "!title!" "!path!"
+        )
+      )
+    )
+  )
+)
+endlocal
  cls
  echo type help or ? to get a list of commands
  echo Type exit to return to a normal Windows session.
@@ -121,26 +137,51 @@ goto menu
 
 :appexit
 
- taskkill -f -im taskmgr.exe
- taskkill -f -im notepad.exe
- taskkill -f -im firefox.exe
- taskkill -f -im notepad++.exe
- taskkill -f -im foobar2000.exe
- taskkill -f -im taskmgr.exe
+   rem Kill your apps here (I set some default values)
+   rem This is very unoptimized i know
+   :: Disabled most auto killing apps -- The user has to set them up
+setlocal enabledelayedexpansion
+set "insection="
+for /f "usebackq tokens=*" %%i in ("C:\ULDOS\killlist.ini") do (
+  set "line=%%i"
+  if "!line:~0,1!"=="[" (
+    set "insection="
+    if /i "!line!"=="[Apps]" set "insection=1"
+  ) else (
+    set "line=!line:;=!"
+    if defined insection if not "!line!"=="" (
+      taskkill /f /im "!line!" 2>nul
+    )
+  )
+)
    rem This is the last thing that we kill !!
  start explorer.exe
-  taskkill -f -im conhost.exe
    exit 0
   
   :reloadall
-   start conhost.exe
- start taskmgr.exe
- start notepad.exe
- :: The user has to set them up.
- :: Most application will not be on A:/ | I have a custom letter and my apps are installed on A:/
- :: start "Foobar2000 -- UserlandDOS" "A:/Program Files/foobar2000/foobar2000.exe"
- :: start "Notepad++ -- UserlandDOS" "A:/Program Files/Notepad++/notepad++.exe"
- :: start "Mozilla Firefox -- UserlandDOS" "C:\Program Files\Mozilla Firefox\firefox.exe"
+:: what even tf is that
+setlocal enabledelayedexpansion
+set "insection="
+for /f "usebackq tokens=*" %%i in ("C:\ULDOS\loadlist.ini") do (
+  set "line=%%i"
+  if "!line:~0,1!"=="[" (
+    set "insection="
+    if /i "!line!"=="[Apps]" set "insection=1"
+  ) else (
+    set "line=!line:;=!"
+    if defined insection if not "!line!"=="" (
+      for /f "tokens=1,2 delims==" %%a in ("!line!") do (
+        set "title=%%a"
+        set "path=%%b"
+        if "!path!"=="" (
+          start "!title!"
+        ) else (
+          start "!title!" "!path!"
+        )
+      )
+    )
+  )
+)
  net start
  cls
  goto menu
@@ -201,7 +242,7 @@ goto menu
 :aboutULDOS
 cls
 echo ULDOS -- Made by Cotere
-echo Version 1.3.1
+echo Version 1.3.3
 echo:
 echo:
 echo ULDOS is a utility to run Windows without an explorer (Like going back to older days)
@@ -218,7 +259,7 @@ echo:
 goto menu
 
 :ver
-echo ULDOS VER -- 1.3.1 -- Cotere
+echo ULDOS VER -- 1.3.3 -- Cotere
 echo:
 goto menu
 
@@ -243,6 +284,7 @@ if /i "%patchver%"=="1.1.2" goto 1.1.2
 if /i "%patchver%"=="1.2" goto 1.2
 if /i "%patchver%"=="1.2.1" goto 1.2.1
 if /i "%patchver%"=="1.3" goto 1.3
+if /i "%patchver%"=="1.3.3" goto 1.3.3
 goto menu
 
 :: PatchNotes
@@ -325,7 +367,18 @@ echo === PATCH 1.3.2 ===
 echo - Disabled most starting apps (Were for debugging)
 echo - First Release on Github
 echo - First official Public release.
+echo - Replpaced README.txt to README.md ro adapt to GITHUB release
 echo:
 pause 
 goto menu
+
+:1.3.3
+cls
+echo === PATCH 1.3.3 ===
+echo - added INI files to manage loading apps and exit apps and reload apps
+echo - removed "legacy" way to load apps (hardcoded)
+echo - Please don't try to reeimplement the hardcoded way and use the ini files in C:/ULDOS
+echo:
+pause
+goto menu 
 :: PATCHNOTES
