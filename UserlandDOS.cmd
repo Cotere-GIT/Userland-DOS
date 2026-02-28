@@ -137,8 +137,6 @@ goto menu
 
 :appexit
 
-   rem Kill your apps here (I set some default values)
-   rem This is very unoptimized i know
    :: Disabled most auto killing apps -- The user has to set them up
 setlocal enabledelayedexpansion
 set "insection="
@@ -154,8 +152,10 @@ for /f "usebackq tokens=*" %%i in ("C:\ULDOS\killlist.ini") do (
     )
   )
 )
-   rem This is the last thing that we kill !!
+:: THIS HAS TO RUN EXPLORER IT IS THE ONLY HARDCODED EXECUATBLE FOR A REASON DON'T ADD ANYTHING ELSE
+:: JUST USE THE INI FILES DON'T HARDCODE !!
  start explorer.exe
+ taskkill /f /im conhost.exe
    exit 0
   
   :reloadall
@@ -208,6 +208,8 @@ for /f "usebackq tokens=*" %%i in ("C:\ULDOS\loadlist.ini") do (
   echo You can run apps using start
   echo Type help or ? to get a list of commands                                                                                
   echo Type exit to return to a normal Windows session.
+  echo To add auto starting apps edit C:/ULDOS/loadlist.ini
+  echo To add auto killed apps edit C:/ULDOS/killlist.ini   
   :: this was supposed to be a bug, it's a feature now
   echo Press enter to rerun the last command
   echo:
@@ -242,7 +244,7 @@ goto menu
 :aboutULDOS
 cls
 echo ULDOS -- Made by Cotere
-echo Version 1.3.3
+echo Version 1.4
 echo:
 echo:
 echo ULDOS is a utility to run Windows without an explorer (Like going back to older days)
@@ -259,13 +261,14 @@ echo:
 goto menu
 
 :ver
-echo ULDOS VER -- 1.3.3 -- Cotere
+echo ULDOS VER -- 1.4 -- Cotere
 echo:
 goto menu
 
 :showpatchnotes
 cls
 echo Available Patch Notes:
+echo 1.4    - Bug fixes and comprehensive INI loading
 echo 1.3.2  - Disabled most starting apps 
 echo 1.3.1  - Added a Removal script 
 echo 1.3    - First version with an exe installer
@@ -285,6 +288,7 @@ if /i "%patchver%"=="1.2" goto 1.2
 if /i "%patchver%"=="1.2.1" goto 1.2.1
 if /i "%patchver%"=="1.3" goto 1.3
 if /i "%patchver%"=="1.3.3" goto 1.3.3
+if /i "%patchver%"=="1.4" goto 1.4
 goto menu
 
 :: PatchNotes
@@ -381,4 +385,14 @@ echo - Please don't try to reeimplement the hardcoded way and use the ini files 
 echo:
 pause
 goto menu 
+
+:1.4
+cls
+echo === PATCH 1.4 ===
+echo - Made ini loading way easier
+echo - Fixed some mistakes like saying killing explorer in appkill 
+echo - Fixed CMD windows not exiting after ULDOS has been exited
+echo:
+pause
+goto menu
 :: PATCHNOTES
