@@ -1,0 +1,38 @@
+:: Tips and Tricks
+
+:: ULDOS is short for USERLAND DOS -- It isn't the same script as the one who enderman showcased!
+:: The script that enderman showcased ran inside "OOBE" windeploy sequence
+:: Our script stays inside the windows "UserLand" Even tough windeploy is userland; it is way more unstable
+
+:: You may also Replace explorer by ULDOS; but make your script exit command shutdown !!
+:: Il'll show you
+
+:: taskkill -f -im taskmgr.exe
+:: taskkill -f -im notepad.exe
+:: taskkill -f -im firefox.exe
+:: taskkill -f -im notepad++.exe
+:: taskkill -f -im foobar2000.exe
+:: taskkill -f -im taskmgr.exe
+::   rem This is the last thing that we kill !!
+:: start explorer.exe
+::  taskkill -f -im conhost.exe
+::   exit 0
+
+:: That is the normal exit script
+:: you want it to shutdown and not reload explorer.exe
+:: do that :
+
+:: shutdown -t 5
+:: exit 0
+
+:: That's essentialy what you want to do
+:: Also if you actually want to use that as a bash, you'll need to fix UAC 
+:: or it will ask for it each boot :)))))
+
+:: Tips and tricks
+
+:: This code is broken like hell
+
+:: Tips and tricks
+
+:: You can run apps using start (Just like in CMD)
