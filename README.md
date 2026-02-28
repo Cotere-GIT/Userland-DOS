@@ -2,12 +2,12 @@ ULDOS or Userland DOS is a script that acts like a "shell" made in batch; It kil
 
 
 == WARNING; This may break your Operating System ==
-I do not take responsibility if your system becomes unuseable or gets degraded
+I do not take responsibility if your system becomes unuseable or gets degraded.
 The source files are inside this exe, you can search for them.
-The source files (appart from the insallation commands) are deployed inside C:/ULDOS
-To remove the dos alias to ULDOS, remove dos.cmd from C:/Windows/System32/
-To remove ULDOS; remove the ULDOS folder from C:/ and dos.cmd from C:/Windows/System32
-or run uninstall-ULDOS.cmd from C:/ULDOS
+The source files (appart from the insallation commands) are deployed inside C:/ULDOS.
+To remove the dos alias to ULDOS, remove dos.cmd from C:/Windows/System32/.
+To remove ULDOS; remove the ULDOS folder from C:/ and dos.cmd from C:/Windows/System32.
+OR run uninstall-ULDOS.cmd from C:/ULDOS.
 This script is for experienced users ONLY!  
 == WARNING; This may break your Operating System ==
 
