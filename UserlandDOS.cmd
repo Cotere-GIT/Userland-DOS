@@ -28,7 +28,8 @@ for /f "usebackq tokens=*" %%i in ("killlist.ini") do (
       taskkill /f /im "!line!" 2>nul
     )
   )
-)
+) 
+taskkill /f /im explorer.exe
    cls
     goto appload
 
@@ -105,6 +106,69 @@ if /i "%cmd:~0,4%"=="cat " (
 if /i "%cmd:~0,6%"=="start " (
     for /f "tokens=*" %%a in ("%cmd:~6%") do start "" "%%a" 2>nul || echo Cannot start %%a
     goto menu
+)
+ :: Yes all of that is for fastfetch
+if /i "%cmd%"=="fastfetch" (
+    where fastfetch >nul 2>&1
+    if errorlevel 1 (
+        echo fastfetch not found, downloading...
+        set "ZIP_URL=https://github.com/fastfetch-cli/fastfetch/releases/download/2.59.0/fastfetch-windows-amd64.zip"
+        set "ZIP_FILE=%TEMP%\fastfetch.zip"
+        set "EXTRACT_DIR=%TEMP%\fastfetch"
+
+        del /q "%ZIP_FILE%" 2>nul
+        rd /s /q "%EXTRACT_DIR%" 2>nul
+
+        powershell -Command "Invoke-WebRequest -Uri '%ZIP_URL%' -OutFile '%ZIP_FILE%'"
+        if not exist "%ZIP_FILE%" (
+            echo Failed to download fastfetch.
+            exit /b 1
+        )
+
+        mkdir "%EXTRACT_DIR%" 2>nul
+        powershell -Command "Add-Type -AssemblyName System.IO.Compression.FileSystem; [IO.Compression.ZipFile]::ExtractToDirectory('%ZIP_FILE%', '%EXTRACT_DIR%')"
+
+        if exist "%EXTRACT_DIR%\fastfetch.exe" (
+            copy /y "%EXTRACT_DIR%\*.exe" "C:\Windows\System32\" >nul
+            copy /y "%EXTRACT_DIR%\*.dll" "C:\Windows\System32\" >nul
+            echo fastfetch installed to System32.
+        ) else (
+            echo fastfetch.exe not found inside the archive.
+            exit /b 1
+        )
+    )
+    start fastfetch
+)
+if /i "%cmd%"=="neofetch" (
+    where fastfetch >nul 2>&1
+    if errorlevel 1 (
+        echo fastfetch not found, downloading...
+        set "ZIP_URL=https://github.com/fastfetch-cli/fastfetch/releases/download/2.59.0/fastfetch-windows-amd64.zip"
+        set "ZIP_FILE=%TEMP%\fastfetch.zip"
+        set "EXTRACT_DIR=%TEMP%\fastfetch"
+
+        del /q "%ZIP_FILE%" 2>nul
+        rd /s /q "%EXTRACT_DIR%" 2>nul
+
+        powershell -Command "Invoke-WebRequest -Uri '%ZIP_URL%' -OutFile '%ZIP_FILE%'"
+        if not exist "%ZIP_FILE%" (
+            echo Failed to download fastfetch.
+            exit /b 1
+        )
+
+        mkdir "%EXTRACT_DIR%" 2>nul
+        powershell -Command "Add-Type -AssemblyName System.IO.Compression.FileSystem; [IO.Compression.ZipFile]::ExtractToDirectory('%ZIP_FILE%', '%EXTRACT_DIR%')"
+
+        if exist "%EXTRACT_DIR%\fastfetch.exe" (
+            copy /y "%EXTRACT_DIR%\*.exe" "C:\Windows\System32\" >nul
+            copy /y "%EXTRACT_DIR%\*.dll" "C:\Windows\System32\" >nul
+            echo fastfetch installed to System32.
+        ) else (
+            echo fastfetch.exe not found inside the archive.
+            exit /b 1
+        )
+    )
+    start fastfetch
 )
 if /i "%cmd%"=="patchnotes" call :showpatchnotes & goto menu
  if /i "%cmd%"=="exit" goto appexit
@@ -244,7 +308,7 @@ goto menu
 :aboutULDOS
 cls
 echo ULDOS -- Made by Cotere
-echo Version 1.4
+echo Version 1.5
 echo:
 echo:
 echo ULDOS is a utility to run Windows without an explorer (Like going back to older days)
@@ -261,13 +325,14 @@ echo:
 goto menu
 
 :ver
-echo ULDOS VER -- 1.4 -- Cotere
+echo ULDOS VER -- 1.5 -- Cotere
 echo:
 goto menu
 
 :showpatchnotes
 cls
 echo Available Patch Notes:
+echo 1.5    - Added fastfetch (Pain)
 echo 1.4    - Bug fixes and comprehensive INI loading
 echo 1.3.2  - Disabled most starting apps 
 echo 1.3.1  - Added a Removal script 
@@ -289,6 +354,7 @@ if /i "%patchver%"=="1.2.1" goto 1.2.1
 if /i "%patchver%"=="1.3" goto 1.3
 if /i "%patchver%"=="1.3.3" goto 1.3.3
 if /i "%patchver%"=="1.4" goto 1.4
+if /i "%patchver%"=="1.5" goto 1.5
 goto menu
 
 :: PatchNotes
@@ -392,6 +458,16 @@ echo === PATCH 1.4 ===
 echo - Made ini loading way easier
 echo - Fixed some mistakes like saying killing explorer in appkill 
 echo - Fixed CMD windows not exiting after ULDOS has been exited
+echo:
+pause
+goto menu
+
+:1.5
+cls
+echo === PATCH 1.5 ===
+echo - Took way too much time to add neofetch
+echo - It's like 50 lines long X2 because of neofetch
+echo - That's it.
 echo:
 pause
 goto menu

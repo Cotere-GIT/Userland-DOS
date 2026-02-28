@@ -36,3 +36,8 @@
 :: Tips and tricks
 
 :: You can run apps using start (Just like in CMD)
+
+:: Tips and Tricks
+
+:: before updating backup your INI files
+:: or they will get overwritten
