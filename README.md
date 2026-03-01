@@ -19,3 +19,5 @@ to edit exiting apps edit C:/ULDOS/killlist.ini
 The installer has a UAC backup if the app isn't run as administrator, if you see a UAC window appear twice, 
 the application hasn't been ran as administrator and requests Administrator permissions twice to run both CMD
 scripts. Thank you for your understanding.
+
+Fastfetch github page : https://github.com/fastfetch-cli/fastfetch?tab=readme-ov-file

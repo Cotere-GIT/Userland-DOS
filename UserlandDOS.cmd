@@ -107,71 +107,9 @@ if /i "%cmd:~0,6%"=="start " (
     for /f "tokens=*" %%a in ("%cmd:~6%") do start "" "%%a" 2>nul || echo Cannot start %%a
     goto menu
 )
- :: Yes all of that is for fastfetch
-if /i "%cmd%"=="fastfetch" (
-    where fastfetch >nul 2>&1
-    if errorlevel 1 (
-        echo fastfetch not found, downloading...
-        set "ZIP_URL=https://github.com/fastfetch-cli/fastfetch/releases/download/2.59.0/fastfetch-windows-amd64.zip"
-        set "ZIP_FILE=%TEMP%\fastfetch.zip"
-        set "EXTRACT_DIR=%TEMP%\fastfetch"
-
-        del /q "%ZIP_FILE%" 2>nul
-        rd /s /q "%EXTRACT_DIR%" 2>nul
-
-        powershell -Command "Invoke-WebRequest -Uri '%ZIP_URL%' -OutFile '%ZIP_FILE%'"
-        if not exist "%ZIP_FILE%" (
-            echo Failed to download fastfetch.
-            exit /b 1
-        )
-
-        mkdir "%EXTRACT_DIR%" 2>nul
-        powershell -Command "Add-Type -AssemblyName System.IO.Compression.FileSystem; [IO.Compression.ZipFile]::ExtractToDirectory('%ZIP_FILE%', '%EXTRACT_DIR%')"
-
-        if exist "%EXTRACT_DIR%\fastfetch.exe" (
-            copy /y "%EXTRACT_DIR%\*.exe" "C:\Windows\System32\" >nul
-            copy /y "%EXTRACT_DIR%\*.dll" "C:\Windows\System32\" >nul
-            echo fastfetch installed to System32.
-        ) else (
-            echo fastfetch.exe not found inside the archive.
-            exit /b 1
-        )
-    )
-    start fastfetch
-)
-if /i "%cmd%"=="neofetch" (
-    where fastfetch >nul 2>&1
-    if errorlevel 1 (
-        echo fastfetch not found, downloading...
-        set "ZIP_URL=https://github.com/fastfetch-cli/fastfetch/releases/download/2.59.0/fastfetch-windows-amd64.zip"
-        set "ZIP_FILE=%TEMP%\fastfetch.zip"
-        set "EXTRACT_DIR=%TEMP%\fastfetch"
-
-        del /q "%ZIP_FILE%" 2>nul
-        rd /s /q "%EXTRACT_DIR%" 2>nul
-
-        powershell -Command "Invoke-WebRequest -Uri '%ZIP_URL%' -OutFile '%ZIP_FILE%'"
-        if not exist "%ZIP_FILE%" (
-            echo Failed to download fastfetch.
-            exit /b 1
-        )
-
-        mkdir "%EXTRACT_DIR%" 2>nul
-        powershell -Command "Add-Type -AssemblyName System.IO.Compression.FileSystem; [IO.Compression.ZipFile]::ExtractToDirectory('%ZIP_FILE%', '%EXTRACT_DIR%')"
-
-        if exist "%EXTRACT_DIR%\fastfetch.exe" (
-            copy /y "%EXTRACT_DIR%\*.exe" "C:\Windows\System32\" >nul
-            copy /y "%EXTRACT_DIR%\*.dll" "C:\Windows\System32\" >nul
-            echo fastfetch installed to System32.
-        ) else (
-            echo fastfetch.exe not found inside the archive.
-            exit /b 1
-        )
-    )
-    start fastfetch
-)
-if /i "%cmd%"=="patchnotes" call :showpatchnotes & goto menu
+ if /i "%cmd%"=="patchnotes" call :showpatchnotes & goto menu
  if /i "%cmd%"=="exit" goto appexit
+ if /i "%cmd%"=="fastfetch" goto sysinfo
  if /i "%cmd%"=="reload" goto appload
  if /i "%cmd%"=="cmd" goto admincmd
  if /i "%cmd%"=="help" goto help
@@ -308,7 +246,7 @@ goto menu
 :aboutULDOS
 cls
 echo ULDOS -- Made by Cotere
-echo Version 1.5
+echo Version 1.5.1
 echo:
 echo:
 echo ULDOS is a utility to run Windows without an explorer (Like going back to older days)
@@ -325,13 +263,14 @@ echo:
 goto menu
 
 :ver
-echo ULDOS VER -- 1.5 -- Cotere
+echo ULDOS VER -- 1.5.1 -- Cotere
 echo:
 goto menu
 
 :showpatchnotes
 cls
 echo Available Patch Notes:
+echo 1.5.1    - Removed fastfetch
 echo 1.5    - Added fastfetch (Pain)
 echo 1.4    - Bug fixes and comprehensive INI loading
 echo 1.3.2  - Disabled most starting apps 
@@ -355,6 +294,7 @@ if /i "%patchver%"=="1.3" goto 1.3
 if /i "%patchver%"=="1.3.3" goto 1.3.3
 if /i "%patchver%"=="1.4" goto 1.4
 if /i "%patchver%"=="1.5" goto 1.5
+if /i "%patchver%"=="1.5.1" goto 1.5.1
 goto menu
 
 :: PatchNotes
@@ -471,4 +411,70 @@ echo - That's it.
 echo:
 pause
 goto menu
+
+:1.5.1
+cls
+echo == PATCH 1.5.1 ===
+echo - Neofetch, Doesn't work
+echo - nefoetch redirects to sysinfo
+echo - added custom sysinfo to replace fastfetch
+echo:
+pause
+goto menu
 :: PATCHNOTES
+
+:sysinfo
+@echo off
+setlocal enabledelayedexpansion
+
+:: Detect language ID from registry
+for /f "tokens=3" %%a in ('reg query "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Nls\Language" /v InstallLanguage 2^>nul ^| find "InstallLanguage"') do (
+    set "lang_id=%%a"
+)
+
+:: French (040C)
+if /i "%lang_id%"=="040C" (
+    echo [SysInfo - Français]
+    systeminfo | findstr /i "Nom de l'ordinateur: Nom du système d'exploitation: Fabricant du système d'exploitation: Version du système d'exploitation: Processeur.*Mémoire physique totale: Mémoire physique disponible:" && echo. && ipconfig | findstr /i "Adresse IPv4"
+    goto menu
+)
+
+:: English (0409)
+if /i "%lang_id%"=="0409" (
+    echo [SysInfo - English]
+    systeminfo | findstr /i "Host Name: OS Name: OS Version: Processor.*Total Physical Memory: Available Physical Memory:" && echo. && ipconfig | findstr /i "IPv4"
+    goto menu
+)
+
+:: German (0407)
+if /i "%lang_id%"=="0407" (
+    echo [SysInfo - Deutsch]
+    systeminfo | findstr /i "Computername: Betriebssystemname: Betriebssystemversion: Prozessor.*Physischer Arbeitsspeicher gesamt: Physischer Arbeitsspeicher verfügbar:" && echo. && ipconfig | findstr /i "IPv4"
+    goto menu
+)
+
+:: Spanish (040A)
+if /i "%lang_id%"=="040A" (
+    echo [SysInfo - Español]
+    systeminfo | findstr /i "Nombre del equipo: Nombre del SO: Versión del SO: Procesador.*Memoria física total: Memoria física disponible:" && echo. && ipconfig | findstr /i "IPv4"
+    goto menu
+)
+
+:: Italian (0410)
+if /i "%lang_id%"=="0410" (
+    echo [SysInfo - Italiano]
+    systeminfo | findstr /i "Nome computer: Nome sistema operativo: Versione SO: Processore.*Memoria fisica totale: Memoria fisica disponibile:" && echo. && ipconfig | findstr /i "IPv4"
+    goto menu
+)
+
+:: Portuguese (0416)
+if /i "%lang_id%"=="0416" (
+    echo [SysInfo - Português]
+    systeminfo | findstr /i "Nome do computador: Nome do sistema operacional: Versão do SO: Processador.*Memória física total: Memória física disponível:" && echo. && ipconfig | findstr /i "IPv4"
+    goto menu
+)
+
+:: Default (English fallback)
+echo [SysInfo - Default English]
+systeminfo | findstr /i "Host Name: OS Name: OS Version: Processor.*Total Physical Memory: Available Physical Memory:" && echo. && ipconfig | findstr /i "IPv4"
+goto menu
