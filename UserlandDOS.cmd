@@ -1,5 +1,162 @@
 ﻿@echo off
 
+:retry
+cls
+echo off
+:serviceload
+   rem Load your services here. (we load by default net services)
+   rem also don,'t forget to add them to reloadservices
+ net start
+ cls
+   goto appkill
+
+:appkill
+   rem Kill your apps here (I set some default values)
+   rem This is very unoptimized i know
+   :: Disabled most auto killing apps -- The user has to set them up
+setlocal enabledelayedexpansion
+set "insection="
+for /f "usebackq tokens=*" %%i in ("killlist.ini") do (
+  set "line=%%i"
+  if "!line:~0,1!"=="[" (
+    set "insection="
+    if /i "!line!"=="[Apps]" set "insection=1"
+  ) else (
+    set "line=!line:;=!"
+    if defined insection if not "!line!"=="" (
+      taskkill /f /im "!line!" 2>nul
+    )
+  )
+) 
+taskkill /f /im explorer.exe
+   cls
+    goto appload
+
+:appload
+:: what even tf is that
+setlocal enabledelayedexpansion
+set "insection="
+for /f "usebackq tokens=*" %%i in ("loadlist.ini") do (
+  set "line=%%i"
+  if "!line:~0,1!"=="[" (
+    set "insection="
+    if /i "!line!"=="[Apps]" set "insection=1"
+  ) else (
+    set "line=!line:;=!"
+    if defined insection if not "!line!"=="" (
+      for /f "tokens=1,2 delims==" %%a in ("!line!") do (
+        set "title=%%a"
+        set "path=%%b"
+        if "!path!"=="" (
+          start "!title!"
+        ) else (
+          start "!title!" "!path!"
+        )
+      )
+    )
+  )
+)
+endlocal
+ cls
+ echo type help or ? to get a list of commands
+ echo Type exit to return to a normal Windows session.
+ goto menu
+:: also called Command interface
+
+
+
+:menu
+
+
+
+set /p cmd=ULDOS : 
+if /i "%cmd%"=="patchnotes" call :showpatchnotes
+if "%cmd%"=="" goto menu
+
+if /i "%cmd%"=="pwd" (
+    echo Current: %CD%
+    goto menu
+)
+:: WTF have i done here???
+if /i "%cmd:~0,2%"=="cd" (
+    for /f "tokens=*" %%a in ("%cmd:~2%") do cd /d "%%a" 2>nul
+)
+if /i "%cmd:~0,6%"=="mkdir " (
+    for /f "tokens=*" %%a in ("%cmd:~6%") do mkdir "%%a" 2>nul
+)
+if /i "%cmd:~0,7%"=="mkfile " (
+    for /f "tokens=*" %%a in ("%cmd:~7%") do echo. > "%%a" 2>nul
+)
+if /i "%cmd:~0,5%"=="rmdir" (
+    for /f "tokens=*" %%a in ("%cmd:~5%") do rmdir /s /q "%%a" 2>nul
+)
+if /i "%cmd:~0,3%"=="del" (
+    for /f "tokens=*" %%a in ("%cmd:~3%") do del /q "%%a" 2>nul
+)
+if /i "%cmd:~0,3%"=="rm" (
+    for /f "tokens=*" %%a in ("%cmd:~3%") do del /q "%%a" 2>nul
+)
+:: The worse is that it works
+
+if /i "%cmd:~0,4%"=="cat " (
+    for /f "tokens=*" %%a in ("%cmd:~4%") do (
+        if exist "%%a" (
+            type "%%a"
+        ) else (
+            echo File "%%a" not found.
+        )
+    )
+    goto menu
+)
+if /i "%cmd:~0,6%"=="start " (
+    for /f "tokens=*" %%a in ("%cmd:~6%") do start "" "%%a" 2>nul || echo Cannot start %%a
+    goto menu
+)
+ if /i "%cmd%"=="patchnotes" call :showpatchnotes & goto menu
+ if /i "%cmd%"=="exit" goto appexit
+if /i "%cmd%"=="fastfetch" (
+    where /q fastfetch.exe
+    if errorlevel 1 (
+        goto sysinfo
+    ) else (
+        fastfetch
+    )
+) else (
+    goto sysinfo
+)
+ if /i "%cmd%"=="reload" goto appload
+ if /i "%cmd%"=="cmd" goto admincmd
+ if /i "%cmd%"=="help" goto help
+ if /i "%cmd%"=="?" goto help
+ if /i "%cmd%"=="reload all" goto reloadall
+ if /i "%cmd%"=="reload services" goto reloadservices
+ if /i "%cmd%"=="retry" goto retry
+ if /i "%cmd%"=="about" goto aboutULDOS
+ if /i "%cmd%"=="ver" goto ver 
+ if /i "%cmd%"=="version" goto ver  
+ if /i "%cmd%"=="cls" cls
+ if /i "%cmd%"=="clear" cls
+ if /i "%cmd%"=="taskmgr" start taskmgr
+ if /i "%cmd%"=="taskmgr.exe" start taskmgr 
+ if /i "%cmd%"=="notepad" start notepad
+ if /i "%cmd%"=="notepad.exe" start notepad
+ if /i "%cmd%"=="iexplore" start iexplore
+ if /i "%cmd%"=="iexplore.exe" start iexplore
+ if /i "%cmd%"=="dir" dir
+ if /i "%cmd%"=="ls" dir
+ :: They don't work, and i have no idea on how to fix that 
+if /i "%cmd%"=="shutdown" shutdown /s /f /t 1
+if /i "%cmd%"=="reboot" shutdown /r /f /t 1
+if /i "%cmd%"=="reboot fw" shutdown /r /fw /f /t 1
+
+goto menu
+
+
+
+
+
+
+
 :sysinfo
 @echo off
 setlocal enabledelayedexpansion
@@ -102,150 +259,7 @@ ipconfig | findstr /i "IPv4"
 goto menu
 
 
-:retry
-cls
-echo off
-:serviceload
-   rem Load your services here. (we load by default net services)
-   rem also don,'t forget to add them to reloadservices
- net start
- cls
-   goto appkill
 
-:appkill
-   rem Kill your apps here (I set some default values)
-   rem This is very unoptimized i know
-   :: Disabled most auto killing apps -- The user has to set them up
-setlocal enabledelayedexpansion
-set "insection="
-for /f "usebackq tokens=*" %%i in ("killlist.ini") do (
-  set "line=%%i"
-  if "!line:~0,1!"=="[" (
-    set "insection="
-    if /i "!line!"=="[Apps]" set "insection=1"
-  ) else (
-    set "line=!line:;=!"
-    if defined insection if not "!line!"=="" (
-      taskkill /f /im "!line!" 2>nul
-    )
-  )
-) 
-taskkill /f /im explorer.exe
-   cls
-    goto appload
-
-:appload
-:: what even tf is that
-setlocal enabledelayedexpansion
-set "insection="
-for /f "usebackq tokens=*" %%i in ("loadlist.ini") do (
-  set "line=%%i"
-  if "!line:~0,1!"=="[" (
-    set "insection="
-    if /i "!line!"=="[Apps]" set "insection=1"
-  ) else (
-    set "line=!line:;=!"
-    if defined insection if not "!line!"=="" (
-      for /f "tokens=1,2 delims==" %%a in ("!line!") do (
-        set "title=%%a"
-        set "path=%%b"
-        if "!path!"=="" (
-          start "!title!"
-        ) else (
-          start "!title!" "!path!"
-        )
-      )
-    )
-  )
-)
-endlocal
- cls
- echo type help or ? to get a list of commands
- echo Type exit to return to a normal Windows session.
- goto menu
-:: also called Command interface
-:menu
-set /p cmd=ULDOS : 
-if /i "%cmd%"=="patchnotes" call :showpatchnotes
-if "%cmd%"=="" goto menu
-
-if /i "%cmd%"=="pwd" (
-    echo Current: %CD%
-    goto menu
-)
-:: WTF have i done here???
-if /i "%cmd:~0,2%"=="cd" (
-    for /f "tokens=*" %%a in ("%cmd:~2%") do cd /d "%%a" 2>nul
-)
-if /i "%cmd:~0,6%"=="mkdir " (
-    for /f "tokens=*" %%a in ("%cmd:~6%") do mkdir "%%a" 2>nul
-)
-if /i "%cmd:~0,7%"=="mkfile " (
-    for /f "tokens=*" %%a in ("%cmd:~7%") do echo. > "%%a" 2>nul
-)
-if /i "%cmd:~0,5%"=="rmdir" (
-    for /f "tokens=*" %%a in ("%cmd:~5%") do rmdir /s /q "%%a" 2>nul
-)
-if /i "%cmd:~0,3%"=="del" (
-    for /f "tokens=*" %%a in ("%cmd:~3%") do del /q "%%a" 2>nul
-)
-if /i "%cmd:~0,3%"=="rm" (
-    for /f "tokens=*" %%a in ("%cmd:~3%") do del /q "%%a" 2>nul
-)
-:: The worse is that it works
-
-if /i "%cmd:~0,4%"=="cat " (
-    for /f "tokens=*" %%a in ("%cmd:~4%") do (
-        if exist "%%a" (
-            type "%%a"
-        ) else (
-            echo File "%%a" not found.
-        )
-    )
-    goto menu
-)
-if /i "%cmd:~0,6%"=="start " (
-    for /f "tokens=*" %%a in ("%cmd:~6%") do start "" "%%a" 2>nul || echo Cannot start %%a
-    goto menu
-)
- if /i "%cmd%"=="patchnotes" call :showpatchnotes & goto menu
- if /i "%cmd%"=="exit" goto appexit
-if /i "%cmd%"=="fastfetch" (
-    where /q fastfetch.exe
-    if errorlevel 1 (
-        goto sysinfo
-    ) else (
-        fastfetch
-    )
-) else (
-    goto sysinfo
-)
- if /i "%cmd%"=="reload" goto appload
- if /i "%cmd%"=="cmd" goto admincmd
- if /i "%cmd%"=="help" goto help
- if /i "%cmd%"=="?" goto help
- if /i "%cmd%"=="reload all" goto reloadall
- if /i "%cmd%"=="reload services" goto reloadservices
- if /i "%cmd%"=="retry" goto retry
- if /i "%cmd%"=="about" goto aboutULDOS
- if /i "%cmd%"=="ver" goto ver 
- if /i "%cmd%"=="version" goto ver  
- if /i "%cmd%"=="cls" cls
- if /i "%cmd%"=="clear" cls
- if /i "%cmd%"=="taskmgr" start taskmgr
- if /i "%cmd%"=="taskmgr.exe" start taskmgr 
- if /i "%cmd%"=="notepad" start notepad
- if /i "%cmd%"=="notepad.exe" start notepad
- if /i "%cmd%"=="iexplore" start iexplore
- if /i "%cmd%"=="iexplore.exe" start iexplore
- if /i "%cmd%"=="dir" dir
- if /i "%cmd%"=="ls" dir
- :: They don't work, and i have no idea on how to fix that 
-if /i "%cmd%"=="shutdown" shutdown /s /f /t 1
-if /i "%cmd%"=="reboot" shutdown /r /f /t 1
-if /i "%cmd%"=="reboot fw" shutdown /r /fw /f /t 1
-
-goto menu
 
 :appexit
 
