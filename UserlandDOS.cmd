@@ -1,5 +1,106 @@
 ﻿@echo off
 
+:sysinfo
+@echo off
+setlocal enabledelayedexpansion
+
+:: Detect language ID from registry
+for /f "tokens=3" %%a in ('reg query "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Nls\Language" /v InstallLanguage 2^>nul ^| find "InstallLanguage"') do (
+    set "lang_id=%%a"
+)
+
+:: French (040C)
+if /i "%lang_id%"=="040C" (
+    echo [SysInfo - Français]
+    systeminfo | findstr /i "Nom de l'ordinateur" | findstr /i "ordinateur:"
+    systeminfo | findstr /i "Nom du système d'exploitation" | findstr /i "d'exploitation:"
+    systeminfo | findstr /i "Fabricant du système" | findstr /i "Fabricant:"
+    systeminfo | findstr /i "Version du système" | findstr /i "Version:"
+    systeminfo | findstr /i "Processeur"
+    systeminfo | findstr /i "Mémoire physique totale"
+    systeminfo | findstr /i "Mémoire physique disponible"
+    echo.
+    ipconfig | findstr /i "Adresse IPv4"
+    goto menu
+)
+
+:: English (0409)
+if /i "%lang_id%"=="0409" (
+    echo [SysInfo - English]
+    systeminfo | findstr /i "Host Name"
+    systeminfo | findstr /i "OS Name"
+    systeminfo | findstr /i "OS Version"
+    systeminfo | findstr /i "Processor"
+    systeminfo | findstr /i "Total Physical Memory"
+    systeminfo | findstr /i "Available Physical Memory"
+    echo.
+    ipconfig | findstr /i "IPv4"
+    goto menu
+)
+
+:: German (0407)
+if /i "%lang_id%"=="0407" (
+    echo [SysInfo - Deutsch]
+    systeminfo | findstr /i "Computername"
+    systeminfo | findstr /i "Betriebssystemname"
+    systeminfo | findstr /i "Betriebssystemversion"
+    systeminfo | findstr /i "Prozessor"
+    systeminfo | findstr /i "Physischer Arbeitsspeicher gesamt"
+    systeminfo | findstr /i "Physischer Arbeitsspeicher verfügbar"
+    echo.
+    ipconfig | findstr /i "IPv4"
+    goto menu
+)
+
+:: Spanish (040A)
+if /i "%lang_id%"=="040A" (
+    echo [SysInfo - Español]
+    systeminfo | findstr /i "Nombre del equipo"
+    systeminfo | findstr /i "Nombre del SO"
+    systeminfo | findstr /i "Versión del SO"
+    systeminfo | findstr /i "Procesador"
+    systeminfo | findstr /i "Memoria física total"
+    systeminfo | findstr /i "Memoria física disponible"
+    echo.
+    ipconfig | findstr /i "IPv4"
+    goto menu
+)
+
+:: Italian (0410)
+if /i "%lang_id%"=="0410" (
+    echo [SysInfo - Italiano]
+    systeminfo | findstr /i "Nome computer"
+    systeminfo | findstr /i "Nome sistema operativo"
+    systeminfo | findstr /i "Versione SO"
+    systeminfo | findstr /i "Processore"
+    systeminfo | findstr /i "Memoria fisica totale"
+    systeminfo | findstr /i "Memoria fisica disponibile"
+    echo.
+    ipconfig | findstr /i "IPv4"
+    goto menu
+)
+
+:: Portuguese (0416)
+if /i "%lang_id%"=="0416" (
+    echo [SysInfo - Português]
+    systeminfo | findstr /i "Nome do computador"
+    systeminfo | findstr /i "Nome do sistema operacional"
+    systeminfo | findstr /i "Versão do SO"
+    systeminfo | findstr /i "Processador"
+    systeminfo | findstr /i "Memória física total"
+    systeminfo | findstr /i "Memória física disponível"
+    echo.
+    ipconfig | findstr /i "IPv4"
+    goto menu
+)
+
+:: Default (English)
+echo [SysInfo - Default English]
+systeminfo | findstr /i "Host Name OS Name OS Version Processor.*Total Physical Memory Available Physical Memory"
+echo.
+ipconfig | findstr /i "IPv4"
+goto menu
+
 
 :retry
 cls
@@ -109,7 +210,16 @@ if /i "%cmd:~0,6%"=="start " (
 )
  if /i "%cmd%"=="patchnotes" call :showpatchnotes & goto menu
  if /i "%cmd%"=="exit" goto appexit
- if /i "%cmd%"=="fastfetch" goto sysinfo
+if /i "%cmd%"=="fastfetch" (
+    where /q fastfetch.exe
+    if errorlevel 1 (
+        goto sysinfo
+    ) else (
+        fastfetch
+    )
+) else (
+    goto sysinfo
+)
  if /i "%cmd%"=="reload" goto appload
  if /i "%cmd%"=="cmd" goto admincmd
  if /i "%cmd%"=="help" goto help
@@ -246,7 +356,7 @@ goto menu
 :aboutULDOS
 cls
 echo ULDOS -- Made by Cotere
-echo Version 1.5.1
+echo Version 1.5.2
 echo:
 echo:
 echo ULDOS is a utility to run Windows without an explorer (Like going back to older days)
@@ -263,14 +373,15 @@ echo:
 goto menu
 
 :ver
-echo ULDOS VER -- 1.5.1 -- Cotere
+echo ULDOS VER -- 1.5.2 -- Cotere
 echo:
 goto menu
 
 :showpatchnotes
 cls
 echo Available Patch Notes:
-echo 1.5.1    - Removed fastfetch
+echo 1.5.2  - QOL changes
+echo 1.5.1  - Removed fastfetch
 echo 1.5    - Added fastfetch (Pain)
 echo 1.4    - Bug fixes and comprehensive INI loading
 echo 1.3.2  - Disabled most starting apps 
@@ -295,6 +406,7 @@ if /i "%patchver%"=="1.3.3" goto 1.3.3
 if /i "%patchver%"=="1.4" goto 1.4
 if /i "%patchver%"=="1.5" goto 1.5
 if /i "%patchver%"=="1.5.1" goto 1.5.1
+if /i "%patchver%"=="1.5.2" goto 1.5.2
 goto menu
 
 :: PatchNotes
@@ -414,112 +526,22 @@ goto menu
 
 :1.5.1
 cls
-echo == PATCH 1.5.1 ===
+echo === PATCH 1.5.1 ===
 echo - Neofetch, Doesn't work
 echo - nefoetch redirects to sysinfo
 echo - added custom sysinfo to replace fastfetch
 echo:
 pause
 goto menu
+
+:1.5.2
+cls
+echo === PATCH 1.5.2 ===
+echo - Edited the installer to *NOT* overwrite your INI files
+echo - Will replace the implementation of my custom sysinfo by fastfetch if found.
+echo - Moved my stupidly big implementation of sysinfo to the start
+echo:
+pause
+goto menu
 :: PATCHNOTES
 
-:sysinfo
-@echo off
-setlocal enabledelayedexpansion
-
-:: Detect language ID from registry
-for /f "tokens=3" %%a in ('reg query "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Nls\Language" /v InstallLanguage 2^>nul ^| find "InstallLanguage"') do (
-    set "lang_id=%%a"
-)
-
-:: French (040C)
-if /i "%lang_id%"=="040C" (
-    echo [SysInfo - Français]
-    systeminfo | findstr /i "Nom de l'ordinateur" | findstr /i "ordinateur:"
-    systeminfo | findstr /i "Nom du système d'exploitation" | findstr /i "d'exploitation:"
-    systeminfo | findstr /i "Fabricant du système" | findstr /i "Fabricant:"
-    systeminfo | findstr /i "Version du système" | findstr /i "Version:"
-    systeminfo | findstr /i "Processeur"
-    systeminfo | findstr /i "Mémoire physique totale"
-    systeminfo | findstr /i "Mémoire physique disponible"
-    echo.
-    ipconfig | findstr /i "Adresse IPv4"
-    goto menu
-)
-
-:: English (0409)
-if /i "%lang_id%"=="0409" (
-    echo [SysInfo - English]
-    systeminfo | findstr /i "Host Name"
-    systeminfo | findstr /i "OS Name"
-    systeminfo | findstr /i "OS Version"
-    systeminfo | findstr /i "Processor"
-    systeminfo | findstr /i "Total Physical Memory"
-    systeminfo | findstr /i "Available Physical Memory"
-    echo.
-    ipconfig | findstr /i "IPv4"
-    goto menu
-)
-
-:: German (0407)
-if /i "%lang_id%"=="0407" (
-    echo [SysInfo - Deutsch]
-    systeminfo | findstr /i "Computername"
-    systeminfo | findstr /i "Betriebssystemname"
-    systeminfo | findstr /i "Betriebssystemversion"
-    systeminfo | findstr /i "Prozessor"
-    systeminfo | findstr /i "Physischer Arbeitsspeicher gesamt"
-    systeminfo | findstr /i "Physischer Arbeitsspeicher verfügbar"
-    echo.
-    ipconfig | findstr /i "IPv4"
-    goto menu
-)
-
-:: Spanish (040A)
-if /i "%lang_id%"=="040A" (
-    echo [SysInfo - Español]
-    systeminfo | findstr /i "Nombre del equipo"
-    systeminfo | findstr /i "Nombre del SO"
-    systeminfo | findstr /i "Versión del SO"
-    systeminfo | findstr /i "Procesador"
-    systeminfo | findstr /i "Memoria física total"
-    systeminfo | findstr /i "Memoria física disponible"
-    echo.
-    ipconfig | findstr /i "IPv4"
-    goto menu
-)
-
-:: Italian (0410)
-if /i "%lang_id%"=="0410" (
-    echo [SysInfo - Italiano]
-    systeminfo | findstr /i "Nome computer"
-    systeminfo | findstr /i "Nome sistema operativo"
-    systeminfo | findstr /i "Versione SO"
-    systeminfo | findstr /i "Processore"
-    systeminfo | findstr /i "Memoria fisica totale"
-    systeminfo | findstr /i "Memoria fisica disponibile"
-    echo.
-    ipconfig | findstr /i "IPv4"
-    goto menu
-)
-
-:: Portuguese (0416)
-if /i "%lang_id%"=="0416" (
-    echo [SysInfo - Português]
-    systeminfo | findstr /i "Nome do computador"
-    systeminfo | findstr /i "Nome do sistema operacional"
-    systeminfo | findstr /i "Versão do SO"
-    systeminfo | findstr /i "Processador"
-    systeminfo | findstr /i "Memória física total"
-    systeminfo | findstr /i "Memória física disponível"
-    echo.
-    ipconfig | findstr /i "IPv4"
-    goto menu
-)
-
-:: Default (English)
-echo [SysInfo - Default English]
-systeminfo | findstr /i "Host Name OS Name OS Version Processor.*Total Physical Memory Available Physical Memory"
-echo.
-ipconfig | findstr /i "IPv4"
-goto menu
