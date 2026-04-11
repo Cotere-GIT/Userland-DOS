@@ -23,12 +23,11 @@ if '%errorlevel%' NEQ '0' (
     CD /D "%~dp0"
 :: end of our UAC elevation script
 :: Clear everything before working
-
-copy /Y UserlandDOS.cmd C:\ULDOS
-copy /Y TaT.txt C:\ULDOS 
-copy /Y DOS.cmd C:\Windows\System32
-copy /Y README.txt C:\ULDOS
-copy /Y uninstall-ULDOS.cmd C:\ULDOS
-start notepad C:\ULDOS\TaT.txt
-echo !! PLEASE READ TAT.TXT CAREFULLY !!
-echo Installed ULDOS, use dos in CMD to run
+echo creating necessary directories
+cd C:/
+mkdir C:\ULDOS
+:: If that doesn't exist, how are you even running?
+  :: Under Wine??? Wait wine makes these
+  :: I have no idea then.
+mkdir C:\Windows
+mkdir C:\Windows\System32 

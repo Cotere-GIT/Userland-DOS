@@ -1,4 +1,5 @@
-﻿@echo off
+@echo off
+
 
 :retry
 cls
@@ -14,144 +15,132 @@ echo off
    rem Kill your apps here (I set some default values)
    rem This is very unoptimized i know
    :: Disabled most auto killing apps -- The user has to set them up
-setlocal enabledelayedexpansion
-set "insection="
-for /f "usebackq tokens=*" %%i in ("killlist.ini") do (
-  set "line=%%i"
-  if "!line:~0,1!"=="[" (
-    set "insection="
-    if /i "!line!"=="[Apps]" set "insection=1"
-  ) else (
-    set "line=!line:;=!"
-    if defined insection if not "!line!"=="" (
-      taskkill /f /im "!line!" 2>nul
-    )
-  )
-) 
-taskkill /f /im explorer.exe
+ taskkill -f -im explorer.exe
+:: taskkill -f -im firefox.exe
+:: taskkill -f -im discord.exe
+:: taskkill -f -im foobar2000.exe
+:: taskkill -f -im vlc.exe
+:: taskkill -f -im 7zFM.exe
+:: taskkill -f -im taskmgr.exe
+:: taskkill -f -im regedit.exe
+:: taskkill -f -im notepad.exe
+:: taskkill -f -im notepad++.exe
+:: taskkill -f -im steam.exe
    cls
     goto appload
 
 :appload
-setlocal enabledelayedexpansion
-set "insection="
-for /f "usebackq tokens=*" %%i in ("C:\ULDOS\loadlist.ini") do (
-  set "line=%%i"
-  if "!line:~0,1!"=="[" (
-    set "insection="
-    if /i "!line!"=="[Apps]" set "insection=1"
-  ) else (
-    set "line=!line:;=!"
-    if defined insection if not "!line!"=="" (
-      for /f "tokens=1 delims==" %%a in ("!line!") do (
-        start "" "%%a" 2>nul || echo Failed to start %%a
-      )
-    )
-  )
-)
-endlocal
-cls
+   rem Load apps here.
+   rem also don,'t forget to add them to reloadall
+ start conhost.exe
+ start taskmgr.exe
+ start notepad.exe
+   rem This is just where i store my apps A: HD ; for you it's probably in C:/
+   :: The user has to set them up.
+ :: start "Foobar2000 -- UserlandDOS" "A:/Program Files/foobar2000/foobar2000.exe"
+ :: start "Notepad++ -- UserlandDOS" "A:/Program Files/Notepad++/notepad++.exe"
+ :: start "Mozilla Firefox -- UserlandDOS" "C:\Program Files\Mozilla Firefox\firefox.exe"
+ taskkill cmd.exe
+ cls
  echo type help or ? to get a list of commands
  echo Type exit to return to a normal Windows session.
  goto menu
 :: also called Command interface
-
-
-
 :menu
 set /p cmd=ULDOS : 
+if /i "%cmd%"=="patchnotes" call :showpatchnotes
 if "%cmd%"=="" goto menu
 
-REM File commands - ALL with proper goto
-if /i "%cmd%"=="patchnotes" (call :showpatchnotes & goto menu)
-if /i "%cmd%"=="pwd" (echo Current: %CD% & goto menu)
-if /i "%cmd:~0,2%"=="cd " (for /f "tokens=*" %%a in ("%cmd:~3%") do cd /d "%%a" 2>nul & goto menu)
-if /i "%cmd:~0,6%"=="mkdir " (for /f "tokens=*" %%a in ("%cmd:~6%") do mkdir "%%a" 2>nul & goto menu)
-if /i "%cmd:~0,7%"=="mkfile " (for /f "tokens=*" %%a in ("%cmd:~7%") do echo. ^> "%%a" 2>nul & goto menu)
-if /i "%cmd:~0,5%"=="rmdir" (for /f "tokens=*" %%a in ("%cmd:~6%") do rmdir /s /q "%%a" 2>nul & goto menu)
-if /i "%cmd:~0,3%"=="del" (for /f "tokens=*" %%a in ("%cmd:~4%") do del /q "%%a" 2>nul & goto menu)
-if /i "%cmd:~0,3%"=="rm" (for /f "tokens=*" %%a in ("%cmd:~3%") do del /q "%%a" 2>nul & goto menu)
-if /i "%cmd:~0,4%"=="cat " (for /f "tokens=*" %%a in ("%cmd:~4%") do if exist "%%a" (type "%%a") else echo File "%%a" not found. & goto menu)
-if /i "%cmd:~0,6%"=="start " (for /f "tokens=*" %%a in ("%cmd:~6%") do start "" "%%a" 2>nul || echo Cannot start %%a & goto menu)
+if /i "%cmd%"=="pwd" (
+    echo Current: %CD%
+    goto menu
+)
+:: WTF have i done here???
+if /i "%cmd:~0,2%"=="cd" (
+    for /f "tokens=*" %%a in ("%cmd:~2%") do cd /d "%%a" 2>nul
+)
+if /i "%cmd:~0,6%"=="mkdir " (
+    for /f "tokens=*" %%a in ("%cmd:~6%") do mkdir "%%a" 2>nul
+)
+if /i "%cmd:~0,7%"=="mkfile " (
+    for /f "tokens=*" %%a in ("%cmd:~7%") do echo. > "%%a" 2>nul
+)
+if /i "%cmd:~0,5%"=="rmdir" (
+    for /f "tokens=*" %%a in ("%cmd:~5%") do rmdir /s /q "%%a" 2>nul
+)
+if /i "%cmd:~0,3%"=="del" (
+    for /f "tokens=*" %%a in ("%cmd:~3%") do del /q "%%a" 2>nul
+)
+if /i "%cmd:~0,3%"=="rm" (
+    for /f "tokens=*" %%a in ("%cmd:~3%") do del /q "%%a" 2>nul
+)
+:: The worse is that it works
 
-REM Built-in commands - goto SUBROUTINES (not inline)
-if /i "%cmd%"=="fastfetch" goto fastfetch_install_check
-if /i "%cmd%"=="sysinfo" goto sysinfo
-if /i "%cmd%"=="reload" goto appload
-if /i "%cmd%"=="cmd" goto admincmd
-if /i "%cmd%"=="help" goto help
-if /i "%cmd%"=="?" goto help
-if /i "%cmd%"=="reload all" goto reloadall
-if /i "%cmd%"=="reload services" goto reloadservices
-if /i "%cmd%"=="retry" goto retry
-if /i "%cmd%"=="about" goto aboutULDOS
-if /i "%cmd%"=="ver" goto ver
-if /i "%cmd%"=="version" goto ver
-if /i "%cmd%"=="cls" (cls & goto menu)
-if /i "%cmd%"=="clear" (cls & goto menu)
-if /i "%cmd%"=="taskmgr" (start taskmgr.exe & goto menu)
-if /i "%cmd%"=="taskmgr.exe" (start taskmgr.exe & goto menu)
-if /i "%cmd%"=="notepad" (start notepad.exe & goto menu)
-if /i "%cmd%"=="notepad.exe" (start notepad.exe & goto menu)
-if /i "%cmd%"=="dir" (dir & goto menu)
-if /i "%cmd%"=="ls" (dir & goto menu)
-if /i "%cmd%"=="shutdown" (shutdown /s /f /t 1 & goto menu)
-if /i "%cmd%"=="reboot" (shutdown /r /f /t 1 & goto menu)
-if /i "%cmd%"=="reboot fw" (shutdown /r /fw /f /t 1 & goto menu)
-if /i "%cmd%"=="exit" goto appexit
-if /i "%cmd%"=="apploadgoto" goto appload
+if /i "%cmd:~0,4%"=="cat " (
+    for /f "tokens=*" %%a in ("%cmd:~4%") do (
+        if exist "%%a" (
+            type "%%a"
+        ) else (
+            echo File "%%a" not found.
+        )
+    )
+    goto menu
+)
+if /i "%cmd:~0,6%"=="start " (
+    for /f "tokens=*" %%a in ("%cmd:~6%") do start "" "%%a" 2>nul || echo Cannot start %%a
+    goto menu
+)
+if /i "%cmd%"=="patchnotes" call :showpatchnotes & goto menu
+ if /i "%cmd%"=="exit" goto appexit
+ if /i "%cmd%"=="reload" goto appload
+ if /i "%cmd%"=="cmd" goto admincmd
+ if /i "%cmd%"=="help" goto help
+ if /i "%cmd%"=="?" goto help
+ if /i "%cmd%"=="reload all" goto reloadall
+ if /i "%cmd%"=="reload services" goto reloadservices
+ if /i "%cmd%"=="retry" goto retry
+ if /i "%cmd%"=="about" goto aboutULDOS
+ if /i "%cmd%"=="ver" goto ver 
+ if /i "%cmd%"=="version" goto ver  
+ if /i "%cmd%"=="cls" cls
+ if /i "%cmd%"=="clear" cls
+ if /i "%cmd%"=="taskmgr" start taskmgr
+ if /i "%cmd%"=="taskmgr.exe" start taskmgr 
+ if /i "%cmd%"=="notepad" start notepad
+ if /i "%cmd%"=="notepad.exe" start notepad
+ if /i "%cmd%"=="iexplore" start iexplore
+ if /i "%cmd%"=="iexplore.exe" start iexplore
+ if /i "%cmd%"=="dir" dir
+ if /i "%cmd%"=="ls" dir
+ :: They don't work, and i have no idea on how to fix that 
+if /i "%cmd%"=="shutdown" shutdown /s /f /t 1
+if /i "%cmd%"=="reboot" shutdown /r /f /t 1
+if /i "%cmd%"=="reboot fw" shutdown /r /fw /f /t 1
 
-REM Unknown command
-echo Unknown command: %cmd%
 goto menu
 
 :appexit
 
-   :: Disabled most auto killing apps -- The user has to set them up
-setlocal enabledelayedexpansion
-set "insection="
-for /f "usebackq tokens=*" %%i in ("C:\ULDOS\killlist.ini") do (
-  set "line=%%i"
-  if "!line:~0,1!"=="[" (
-    set "insection="
-    if /i "!line!"=="[Apps]" set "insection=1"
-  ) else (
-    set "line=!line:;=!"
-    if defined insection if not "!line!"=="" (
-      taskkill /f /im "!line!" 2>nul
-    )
-  )
-)
-:: THIS HAS TO RUN EXPLORER IT IS THE ONLY HARDCODED EXECUATBLE FOR A REASON DON'T ADD ANYTHING ELSE
-:: JUST USE THE INI FILES DON'T HARDCODE !!
+ taskkill -f -im taskmgr.exe
+ taskkill -f -im notepad.exe
+ taskkill -f -im firefox.exe
+ taskkill -f -im notepad++.exe
+ taskkill -f -im foobar2000.exe
+ taskkill -f -im taskmgr.exe
+   rem This is the last thing that we kill !!
  start explorer.exe
- taskkill /f /im conhost.exe
+  taskkill -f -im conhost.exe
    exit 0
   
   :reloadall
-:: what even tf is that
-setlocal enabledelayedexpansion
-set "insection="
-for /f "usebackq tokens=*" %%i in ("C:\ULDOS\loadlist.ini") do (
-  set "line=%%i"
-  if "!line:~0,1!"=="[" (
-    set "insection="
-    if /i "!line!"=="[Apps]" set "insection=1"
-  ) else (
-    set "line=!line:;=!"
-    if defined insection if not "!line!"=="" (
-      for /f "tokens=1,2 delims==" %%a in ("!line!") do (
-        set "title=%%a"
-        set "path=%%b"
-        if "!path!"=="" (
-          start "!title!"
-        ) else (
-          start "!title!" "!path!"
-        )
-      )
-    )
-  )
-)
+   start conhost.exe
+ start taskmgr.exe
+ start notepad.exe
+ :: The user has to set them up.
+ :: Most application will not be on A:/ | I have a custom letter and my apps are installed on A:/
+ :: start "Foobar2000 -- UserlandDOS" "A:/Program Files/foobar2000/foobar2000.exe"
+ :: start "Notepad++ -- UserlandDOS" "A:/Program Files/Notepad++/notepad++.exe"
+ :: start "Mozilla Firefox -- UserlandDOS" "C:\Program Files\Mozilla Firefox\firefox.exe"
  net start
  cls
  goto menu
@@ -178,8 +167,6 @@ for /f "usebackq tokens=*" %%i in ("C:\ULDOS\loadlist.ini") do (
   echo You can run apps using start
   echo Type help or ? to get a list of commands                                                                                
   echo Type exit to return to a normal Windows session.
-  echo To add auto starting apps edit C:/ULDOS/loadlist.ini
-  echo To add auto killed apps edit C:/ULDOS/killlist.ini   
   :: this was supposed to be a bug, it's a feature now
   echo Press enter to rerun the last command
   echo:
@@ -214,7 +201,7 @@ goto menu
 :aboutULDOS
 cls
 echo ULDOS -- Made by Cotere
-echo Version 1.6
+echo Version 1.3.1
 echo:
 echo:
 echo ULDOS is a utility to run Windows without an explorer (Like going back to older days)
@@ -231,18 +218,13 @@ echo:
 goto menu
 
 :ver
-echo ULDOS VER -- 1.6 -- Cotere
+echo ULDOS VER -- 1.3.1 -- Cotere
 echo:
 goto menu
 
 :showpatchnotes
 cls
 echo Available Patch Notes:
-echo 1.6    - Normally, Final iteration of fastfetch
-echo 1.5.2  - QOL changes
-echo 1.5.1  - Removed fastfetch
-echo 1.5    - Added fastfetch (Pain)
-echo 1.4    - Bug fixes and comprehensive INI loading
 echo 1.3.2  - Disabled most starting apps 
 echo 1.3.1  - Added a Removal script 
 echo 1.3    - First version with an exe installer
@@ -261,12 +243,6 @@ if /i "%patchver%"=="1.1.2" goto 1.1.2
 if /i "%patchver%"=="1.2" goto 1.2
 if /i "%patchver%"=="1.2.1" goto 1.2.1
 if /i "%patchver%"=="1.3" goto 1.3
-if /i "%patchver%"=="1.3.3" goto 1.3.3
-if /i "%patchver%"=="1.4" goto 1.4
-if /i "%patchver%"=="1.5" goto 1.5
-if /i "%patchver%"=="1.5.1" goto 1.5.1
-if /i "%patchver%"=="1.5.2" goto 1.5.2
-if /i "%patchver%"=="1.6" goto 1.6
 goto menu
 
 :: PatchNotes
@@ -349,109 +325,7 @@ echo === PATCH 1.3.2 ===
 echo - Disabled most starting apps (Were for debugging)
 echo - First Release on Github
 echo - First official Public release.
-echo - Replpaced README.txt to README.md ro adapt to GITHUB release
 echo:
 pause 
 goto menu
-
-:1.3.3
-cls
-echo === PATCH 1.3.3 ===
-echo - added INI files to manage loading apps and exit apps and reload apps
-echo - removed "legacy" way to load apps (hardcoded)
-echo - Please don't try to reeimplement the hardcoded way and use the ini files in C:/ULDOS
-echo:
-pause
-goto menu 
-
-:1.4
-cls
-echo === PATCH 1.4 ===
-echo - Made ini loading way easier
-echo - Fixed some mistakes like saying killing explorer in appkill 
-echo - Fixed CMD windows not exiting after ULDOS has been exited
-echo:
-pause
-goto menu
-
-:1.5
-cls
-echo === PATCH 1.5 ===
-echo - Took way too much time to add neofetch
-echo - It's like 50 lines long X2 because of neofetch
-echo - That's it.
-echo:
-pause
-goto menu
-
-:1.5.1
-cls
-echo === PATCH 1.5.1 ===
-echo - Neofetch, Doesn't work
-echo - nefoetch redirects to sysinfo
-echo - added custom sysinfo to replace fastfetch
-echo:
-pause
-goto menu
-
-:1.5.2
-cls
-echo === PATCH 1.5.2 ===
-echo - Edited the installer to *NOT* overwrite your INI files
-echo - Will replace the implementation of my custom sysinfo by fastfetch if found.
-echo - I need to fix the very slow sysinfo
-echo:
-pause
-goto menu
-
-:1.6
-cls
-echo === PATCH 1.6 ===
-echo - Disabled my horrendous sysinfo hack if fastfetch wasn't found
-echo - Trying to run fastfetch should prompt you to download fastfetch and install it
-echo - It moves fastfetch to system32 with it's required files then goes back to menu
-echo - Fixed fastfetch running each time you run a command once and for all
-echo:
-pause
-goto menu
-
 :: PATCHNOTES
-
-:fastfetch_install_check
-where /q fastfetch.exe
-if %errorlevel%==0 (
-    fastfetch
-) else (
-    call :sysinfo
-)
-goto menu
-
-:sysinfo
-cls
-set /p "install_fastfetch=Install Fastfetch? (Y/N): "
-if /i NOT "%install_fastfetch%"=="Y" (
-    echo No system info available.
-    goto menu
-)
-
-echo Downloading Fastfetch...
-mkdir C:\ULDOS\Temp
-powershell -Command "Invoke-WebRequest -Uri 'https://github.com/fastfetch-cli/fastfetch/releases/latest/download/fastfetch-windows-amd64.zip' -OutFile 'C:\ULDOS\Temp\fastfetch.zip'"
-
-echo Extracting...
-powershell -Command "Expand-Archive -Path 'C:\ULDOS\Temp\fastfetch.zip' -DestinationPath 'C:\ULDOS\Temp\fastfetch' -Force"
-
-echo Moving fastfetch to System32...
-xcopy /E /Y /I "C:\ULDOS\Temp\fastfetch\fastfetch-windows-amd64\*" "C:\Windows\System32\"
-
-echo Cleaning up...
-rmdir /s /q "C:\ULDOS\Temp\fastfetch"
-del "C:\ULDOS\Temp\fastfetch.zip"
-
-echo Fastfetch installed! Run 'fastfetch' again.
-goto menu
-
-:sysinfo_fallback
-echo No system info available ^(install fastfetch first^).
-goto menu
-
