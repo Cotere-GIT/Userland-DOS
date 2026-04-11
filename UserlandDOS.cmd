@@ -33,10 +33,9 @@ taskkill /f /im explorer.exe
     goto appload
 
 :appload
-:: what even tf is that
 setlocal enabledelayedexpansion
 set "insection="
-for /f "usebackq tokens=*" %%i in ("loadlist.ini") do (
+for /f "usebackq tokens=*" %%i in ("C:\ULDOS\loadlist.ini") do (
   set "line=%%i"
   if "!line:~0,1!"=="[" (
     set "insection="
@@ -44,20 +43,14 @@ for /f "usebackq tokens=*" %%i in ("loadlist.ini") do (
   ) else (
     set "line=!line:;=!"
     if defined insection if not "!line!"=="" (
-      for /f "tokens=1,2 delims==" %%a in ("!line!") do (
-        set "title=%%a"
-        set "path=%%b"
-        if "!path!"=="" (
-          start "!title!"
-        ) else (
-          start "!title!" "!path!"
-        )
+      for /f "tokens=1 delims==" %%a in ("!line!") do (
+        start "" "%%a" 2>nul || echo Failed to start %%a
       )
     )
   )
 )
 endlocal
- cls
+cls
  echo type help or ? to get a list of commands
  echo Type exit to return to a normal Windows session.
  goto menu
@@ -66,90 +59,52 @@ endlocal
 
 
 :menu
-
-
-
 set /p cmd=ULDOS : 
-if /i "%cmd%"=="patchnotes" call :showpatchnotes
 if "%cmd%"=="" goto menu
 
-if /i "%cmd%"=="pwd" (
-    echo Current: %CD%
-    goto menu
-)
-:: WTF have i done here???
-if /i "%cmd:~0,2%"=="cd" (
-    for /f "tokens=*" %%a in ("%cmd:~2%") do cd /d "%%a" 2>nul
-)
-if /i "%cmd:~0,6%"=="mkdir " (
-    for /f "tokens=*" %%a in ("%cmd:~6%") do mkdir "%%a" 2>nul
-)
-if /i "%cmd:~0,7%"=="mkfile " (
-    for /f "tokens=*" %%a in ("%cmd:~7%") do echo. > "%%a" 2>nul
-)
-if /i "%cmd:~0,5%"=="rmdir" (
-    for /f "tokens=*" %%a in ("%cmd:~5%") do rmdir /s /q "%%a" 2>nul
-)
-if /i "%cmd:~0,3%"=="del" (
-    for /f "tokens=*" %%a in ("%cmd:~3%") do del /q "%%a" 2>nul
-)
-if /i "%cmd:~0,3%"=="rm" (
-    for /f "tokens=*" %%a in ("%cmd:~3%") do del /q "%%a" 2>nul
-)
-:: The worse is that it works
+REM File commands - ALL with proper goto
+if /i "%cmd%"=="patchnotes" (call :showpatchnotes & goto menu)
+if /i "%cmd%"=="pwd" (echo Current: %CD% & goto menu)
+if /i "%cmd:~0,2%"=="cd " (for /f "tokens=*" %%a in ("%cmd:~3%") do cd /d "%%a" 2>nul & goto menu)
+if /i "%cmd:~0,6%"=="mkdir " (for /f "tokens=*" %%a in ("%cmd:~6%") do mkdir "%%a" 2>nul & goto menu)
+if /i "%cmd:~0,7%"=="mkfile " (for /f "tokens=*" %%a in ("%cmd:~7%") do echo. ^> "%%a" 2>nul & goto menu)
+if /i "%cmd:~0,5%"=="rmdir" (for /f "tokens=*" %%a in ("%cmd:~6%") do rmdir /s /q "%%a" 2>nul & goto menu)
+if /i "%cmd:~0,3%"=="del" (for /f "tokens=*" %%a in ("%cmd:~4%") do del /q "%%a" 2>nul & goto menu)
+if /i "%cmd:~0,3%"=="rm" (for /f "tokens=*" %%a in ("%cmd:~3%") do del /q "%%a" 2>nul & goto menu)
+if /i "%cmd:~0,4%"=="cat " (for /f "tokens=*" %%a in ("%cmd:~4%") do if exist "%%a" (type "%%a") else echo File "%%a" not found. & goto menu)
+if /i "%cmd:~0,6%"=="start " (for /f "tokens=*" %%a in ("%cmd:~6%") do start "" "%%a" 2>nul || echo Cannot start %%a & goto menu)
 
-if /i "%cmd:~0,4%"=="cat " (
-    for /f "tokens=*" %%a in ("%cmd:~4%") do (
-        if exist "%%a" (
-            type "%%a"
-        ) else (
-            echo File "%%a" not found.
-        )
-    )
-    goto menu
-)
-if /i "%cmd:~0,6%"=="start " (
-    for /f "tokens=*" %%a in ("%cmd:~6%") do start "" "%%a" 2>nul || echo Cannot start %%a
-    goto menu
-)
- if /i "%cmd%"=="patchnotes" call :showpatchnotes & goto menu
- if /i "%cmd%"=="exit" goto appexit
-if /i "%cmd%"=="fastfetch" (
-    where /q fastfetch.exe
-    if errorlevel 1 (
-        goto sysinfo
-    ) else (
-        fastfetch
-    )
-) else (
-    goto sysinfo
-)
- if /i "%cmd%"=="reload" goto appload
- if /i "%cmd%"=="cmd" goto admincmd
- if /i "%cmd%"=="help" goto help
- if /i "%cmd%"=="?" goto help
- if /i "%cmd%"=="reload all" goto reloadall
- if /i "%cmd%"=="reload services" goto reloadservices
- if /i "%cmd%"=="retry" goto retry
- if /i "%cmd%"=="about" goto aboutULDOS
- if /i "%cmd%"=="ver" goto ver 
- if /i "%cmd%"=="version" goto ver  
- if /i "%cmd%"=="cls" cls
- if /i "%cmd%"=="clear" cls
- if /i "%cmd%"=="taskmgr" start taskmgr
- if /i "%cmd%"=="taskmgr.exe" start taskmgr 
- if /i "%cmd%"=="notepad" start notepad
- if /i "%cmd%"=="notepad.exe" start notepad
- if /i "%cmd%"=="iexplore" start iexplore
- if /i "%cmd%"=="iexplore.exe" start iexplore
- if /i "%cmd%"=="dir" dir
- if /i "%cmd%"=="ls" dir
- :: They don't work, and i have no idea on how to fix that 
-if /i "%cmd%"=="shutdown" shutdown /s /f /t 1
-if /i "%cmd%"=="reboot" shutdown /r /f /t 1
-if /i "%cmd%"=="reboot fw" shutdown /r /fw /f /t 1
+REM Built-in commands - goto SUBROUTINES (not inline)
+if /i "%cmd%"=="fastfetch" goto fastfetch_install_check
+if /i "%cmd%"=="sysinfo" goto sysinfo
+if /i "%cmd%"=="reload" goto appload
+if /i "%cmd%"=="cmd" goto admincmd
+if /i "%cmd%"=="help" goto help
+if /i "%cmd%"=="?" goto help
+if /i "%cmd%"=="reload all" goto reloadall
+if /i "%cmd%"=="reload services" goto reloadservices
+if /i "%cmd%"=="retry" goto retry
+if /i "%cmd%"=="about" goto aboutULDOS
+if /i "%cmd%"=="ver" goto ver
+if /i "%cmd%"=="version" goto ver
+if /i "%cmd%"=="cls" (cls & goto menu)
+if /i "%cmd%"=="clear" (cls & goto menu)
+if /i "%cmd%"=="taskmgr" (start taskmgr.exe & goto menu)
+if /i "%cmd%"=="taskmgr.exe" (start taskmgr.exe & goto menu)
+if /i "%cmd%"=="notepad" (start notepad.exe & goto menu)
+if /i "%cmd%"=="notepad.exe" (start notepad.exe & goto menu)
+if /i "%cmd%"=="dir" (dir & goto menu)
+if /i "%cmd%"=="ls" (dir & goto menu)
+if /i "%cmd%"=="shutdown" (shutdown /s /f /t 1 & goto menu)
+if /i "%cmd%"=="reboot" (shutdown /r /f /t 1 & goto menu)
+if /i "%cmd%"=="reboot fw" (shutdown /r /fw /f /t 1 & goto menu)
+if /i "%cmd%"=="exit" goto appexit
+if /i "%cmd%"=="apploadgoto" goto appload
 
+REM Unknown command
+echo Unknown command: %cmd%
 goto menu
+
 :appexit
 
    :: Disabled most auto killing apps -- The user has to set them up
@@ -259,7 +214,7 @@ goto menu
 :aboutULDOS
 cls
 echo ULDOS -- Made by Cotere
-echo Version 1.5.2
+echo Version 1.6
 echo:
 echo:
 echo ULDOS is a utility to run Windows without an explorer (Like going back to older days)
@@ -276,13 +231,14 @@ echo:
 goto menu
 
 :ver
-echo ULDOS VER -- 1.5.2 -- Cotere
+echo ULDOS VER -- 1.6 -- Cotere
 echo:
 goto menu
 
 :showpatchnotes
 cls
 echo Available Patch Notes:
+echo 1.6    - Normally, Final iteration of fastfetch
 echo 1.5.2  - QOL changes
 echo 1.5.1  - Removed fastfetch
 echo 1.5    - Added fastfetch (Pain)
@@ -310,6 +266,7 @@ if /i "%patchver%"=="1.4" goto 1.4
 if /i "%patchver%"=="1.5" goto 1.5
 if /i "%patchver%"=="1.5.1" goto 1.5.1
 if /i "%patchver%"=="1.5.2" goto 1.5.2
+if /i "%patchver%"=="1.6" goto 1.6
 goto menu
 
 :: PatchNotes
@@ -446,106 +403,55 @@ echo - I need to fix the very slow sysinfo
 echo:
 pause
 goto menu
+
+:1.6
+cls
+echo === PATCH 1.6 ===
+echo - Disabled my horrendous sysinfo hack if fastfetch wasn't found
+echo - Trying to run fastfetch should prompt you to download fastfetch and install it
+echo - It moves fastfetch to system32 with it's required files then goes back to menu
+echo - Fixed fastfetch running each time you run a command once and for all
+echo:
+pause
+goto menu
+
 :: PATCHNOTES
 
+:fastfetch_install_check
+where /q fastfetch.exe
+if %errorlevel%==0 (
+    fastfetch
+) else (
+    call :sysinfo
+)
+goto menu
+
 :sysinfo
-@echo off
-setlocal enabledelayedexpansion
-
-:: Detect language ID from registry
-for /f "tokens=3" %%a in ('reg query "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Nls\Language" /v InstallLanguage 2^>nul ^| find "InstallLanguage"') do (
-    set "lang_id=%%a"
-)
-
-:: French (040C)
-if /i "%lang_id%"=="040C" (
-    echo [SysInfo - Français]
-    systeminfo | findstr /i "Nom de l'ordinateur" | findstr /i "ordinateur:"
-    systeminfo | findstr /i "Nom du système d'exploitation" | findstr /i "d'exploitation:"
-    systeminfo | findstr /i "Fabricant du système" | findstr /i "Fabricant:"
-    systeminfo | findstr /i "Version du système" | findstr /i "Version:"
-    systeminfo | findstr /i "Processeur"
-    systeminfo | findstr /i "Mémoire physique totale"
-    systeminfo | findstr /i "Mémoire physique disponible"
-    echo.
-    ipconfig | findstr /i "Adresse IPv4"
+cls
+set /p "install_fastfetch=Install Fastfetch? (Y/N): "
+if /i NOT "%install_fastfetch%"=="Y" (
+    echo No system info available.
     goto menu
 )
 
-:: English (0409)
-if /i "%lang_id%"=="0409" (
-    echo [SysInfo - English]
-    systeminfo | findstr /i "Host Name"
-    systeminfo | findstr /i "OS Name"
-    systeminfo | findstr /i "OS Version"
-    systeminfo | findstr /i "Processor"
-    systeminfo | findstr /i "Total Physical Memory"
-    systeminfo | findstr /i "Available Physical Memory"
-    echo.
-    ipconfig | findstr /i "IPv4"
-    goto menu
-)
+echo Downloading Fastfetch...
+mkdir C:\ULDOS\Temp
+powershell -Command "Invoke-WebRequest -Uri 'https://github.com/fastfetch-cli/fastfetch/releases/latest/download/fastfetch-windows-amd64.zip' -OutFile 'C:\ULDOS\Temp\fastfetch.zip'"
 
-:: German (0407)
-if /i "%lang_id%"=="0407" (
-    echo [SysInfo - Deutsch]
-    systeminfo | findstr /i "Computername"
-    systeminfo | findstr /i "Betriebssystemname"
-    systeminfo | findstr /i "Betriebssystemversion"
-    systeminfo | findstr /i "Prozessor"
-    systeminfo | findstr /i "Physischer Arbeitsspeicher gesamt"
-    systeminfo | findstr /i "Physischer Arbeitsspeicher verfügbar"
-    echo.
-    ipconfig | findstr /i "IPv4"
-    goto menu
-)
+echo Extracting...
+powershell -Command "Expand-Archive -Path 'C:\ULDOS\Temp\fastfetch.zip' -DestinationPath 'C:\ULDOS\Temp\fastfetch' -Force"
 
-:: Spanish (040A)
-if /i "%lang_id%"=="040A" (
-    echo [SysInfo - Español]
-    systeminfo | findstr /i "Nombre del equipo"
-    systeminfo | findstr /i "Nombre del SO"
-    systeminfo | findstr /i "Versión del SO"
-    systeminfo | findstr /i "Procesador"
-    systeminfo | findstr /i "Memoria física total"
-    systeminfo | findstr /i "Memoria física disponible"
-    echo.
-    ipconfig | findstr /i "IPv4"
-    goto menu
-)
+echo Moving fastfetch to System32...
+xcopy /E /Y /I "C:\ULDOS\Temp\fastfetch\fastfetch-windows-amd64\*" "C:\Windows\System32\"
 
-:: Italian (0410)
-if /i "%lang_id%"=="0410" (
-    echo [SysInfo - Italiano]
-    systeminfo | findstr /i "Nome computer"
-    systeminfo | findstr /i "Nome sistema operativo"
-    systeminfo | findstr /i "Versione SO"
-    systeminfo | findstr /i "Processore"
-    systeminfo | findstr /i "Memoria fisica totale"
-    systeminfo | findstr /i "Memoria fisica disponibile"
-    echo.
-    ipconfig | findstr /i "IPv4"
-    goto menu
-)
+echo Cleaning up...
+rmdir /s /q "C:\ULDOS\Temp\fastfetch"
+del "C:\ULDOS\Temp\fastfetch.zip"
 
-:: Portuguese (0416)
-if /i "%lang_id%"=="0416" (
-    echo [SysInfo - Português]
-    systeminfo | findstr /i "Nome do computador"
-    systeminfo | findstr /i "Nome do sistema operacional"
-    systeminfo | findstr /i "Versão do SO"
-    systeminfo | findstr /i "Processador"
-    systeminfo | findstr /i "Memória física total"
-    systeminfo | findstr /i "Memória física disponível"
-    echo.
-    ipconfig | findstr /i "IPv4"
-    goto menu
-)
+echo Fastfetch installed! Run 'fastfetch' again.
+goto menu
 
-:: Default (English)
-echo [SysInfo - Default English]
-systeminfo | findstr /i "Host Name OS Name OS Version Processor.*Total Physical Memory Available Physical Memory"
-echo.
-ipconfig | findstr /i "IPv4"
+:sysinfo_fallback
+echo No system info available ^(install fastfetch first^).
 goto menu
 
