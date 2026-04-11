@@ -30,9 +30,4 @@
 :: or it will ask for it each boot :)))))
 
 :: Tips and tricks
-
 :: This code is broken like hell
-
-:: Tips and tricks
-
-:: You can run apps using start (Just like in CMD)

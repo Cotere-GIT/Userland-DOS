@@ -22,8 +22,7 @@ if '%errorlevel%' NEQ '0' (
     pushd "%CD%"
     CD /D "%~dp0"
 :: end of our UAC elevation script
-cls
-@echo off
+
 echo After pressing enter, ULDOS will be fully removed from your system.
 echo To cancel uninstallation, close this window or do CTRL+C
 echo If you have set your shell to ULDOS; restore it to explorer.exe before removing it,
@@ -41,14 +40,5 @@ del /F /Q C:\Windows\System32\dos.cmd
 echo ULDOS has been successfully removed. The dos alias has been removed too.
 echo Thank you for using ULDOS.
 echo Press enter to quit.
-
-setlocal
-
-set /A "count=0"
-set /p "count=" < C:/Windows/System32/ULDOSInstalls.count 2>nul
-
-set /A "count+=1"
-echo %count% > C:/Windows/System32/ULDOSInstalls.count
-
 pause
 exit 0
