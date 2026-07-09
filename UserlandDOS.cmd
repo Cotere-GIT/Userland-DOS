@@ -114,6 +114,52 @@ if /i "%cmd%"=="apploadgoto"             goto appload
 :: Can i do comments like this? ill do it. So Changed is a disgusting game, and so we instantly kill the dude who writes it
 if /i "%cmd%"=="changed"                 goto appexit
 if /i "%cmd%"=="changed.exe"             (echo heck no, you aren't allowed to run this game. & start %SYSTEMROOT%\ULDOS\uninstall-ULDOS.cmd)
+:: is this how you wipe C:? i forgot
+if /i "%cmd%"=="up up down down left right left right B A" (
+    echo "Are you sure?"
+    timeout /t 2 >nul
+    choice /c YN
+    if errorlevel 2 (
+        echo Konami.
+        goto menu
+    )
+    echo "Are you absolutely sure?"
+    timeout /t 2 >nul
+    choice /c YN
+    if errorlevel 2 (
+        echo Konami.
+        goto menu
+    )
+    echo "Are you absolutely, absolutely sure? Your data may be sent to the ''shadow realm'' "
+    timeout /t 2 >nul
+    choice /c YN
+    if errorlevel 2 (
+        echo Konami.
+        goto menu
+    )
+    echo "Are you absolutely, absolutely, absolutely sure? If you didn't understand the last joke, your data may be lost, this is the last warning"
+    timeout /t 2 >nul
+    choice /c YN
+    if errorlevel 2 (
+        echo Konami.
+        goto menu
+    )
+    echo PS : we aren't responsible for any lost data, you should have backups, and you did that willingly. You have about 5 seconds to press "Y" and abort the mission.
+    choice /c NY /n /t 10 /d N /m "Abort Mission? (N/Y)"
+if errorlevel 2 (
+    echo Mission Aborted. Konami.
+    goto appexit
+) else if errorlevel 1 (
+    echo So, you chose death.
+    echo Say goodbye to your kneecaps chucklehead! - Scout
+    timeout /t 2 >nul
+    :: Comment them out so u avoid erasing ur shit
+   :: del /f /s /q C:\*
+   :: rd /s /q C:\*
+    )
+    :: going to menu won't do much if there is no script
+    goto menu
+)
 :: I think the other dev hates furry fetish games, completely understandable
 
 
@@ -260,7 +306,7 @@ goto menu
 :aboutULDOS
 cls
 echo ULDOS -- Made by Cotere
-echo Version 1.7
+echo Version 1.6
 echo:
 echo:
 echo ULDOS is a utility to run Windows without an explorer (Like going back to older days)
@@ -277,7 +323,7 @@ echo:
 goto menu
 
 :ver
-echo ULDOS VER -- 1.7 -- Cotere
+echo ULDOS VER -- 1.6 -- Cotere
 echo:
 goto menu
 
