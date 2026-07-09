@@ -25,3 +25,5 @@ if '%errorlevel%' NEQ '0' (
 
 echo Starting ULDOS!
 call "C:/ULDOS/UserlandDOS.cmd"
+:: EOF
+:: The biggest thing in that script is the fucking elevation

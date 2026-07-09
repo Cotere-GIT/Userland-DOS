@@ -26,8 +26,12 @@ if '%errorlevel%' NEQ '0' (
 echo creating necessary directories
 cd C:/
 mkdir C:\ULDOS
-:: If that doesn't exist, how are you even running?
+  :: If that doesn't exist, how are you even running?
   :: Under Wine??? Wait wine makes these
   :: I have no idea then.
 mkdir C:\Windows
 mkdir C:\Windows\System32 
+
+::EOF
+:: That script shouldn't be compatible with wine, it's DOS ffs
+:: Also, install.cmd copies files, why is this named Filecp then?

@@ -5,8 +5,11 @@ cls
 echo off
 :serviceload
    rem Load your services here. (we load by default net services)
-   rem also don,'t forget to add them to reloadservices
+
  net start
+
+ :: don't we have to userinit then kill explorer so we get net, since if we run ULDOS as shell?
+ :: honestly, i have no fucking idea
  cls
    goto appkill
 
@@ -31,7 +34,8 @@ for /f "usebackq tokens=*" %%i in ("killlist.ini") do (
 taskkill /f /im explorer.exe
    cls
     goto appload
-
+:: Guess what
+:: fuck ini's
 :appload
 setlocal enabledelayedexpansion
 set "insection="
@@ -65,43 +69,126 @@ if "%cmd%"=="" goto menu
 REM File commands - ALL with proper goto
 if /i "%cmd%"=="patchnotes" (call :showpatchnotes & goto menu)
 if /i "%cmd%"=="pwd" (echo Current: %CD% & goto menu)
-if /i "%cmd:~0,2%"=="cd " (for /f "tokens=*" %%a in ("%cmd:~3%") do cd /d "%%a" 2>nul & goto menu)
-if /i "%cmd:~0,6%"=="mkdir " (for /f "tokens=*" %%a in ("%cmd:~6%") do mkdir "%%a" 2>nul & goto menu)
-if /i "%cmd:~0,7%"=="mkfile " (for /f "tokens=*" %%a in ("%cmd:~7%") do echo. ^> "%%a" 2>nul & goto menu)
-if /i "%cmd:~0,5%"=="rmdir" (for /f "tokens=*" %%a in ("%cmd:~6%") do rmdir /s /q "%%a" 2>nul & goto menu)
-if /i "%cmd:~0,3%"=="del" (for /f "tokens=*" %%a in ("%cmd:~4%") do del /q "%%a" 2>nul & goto menu)
-if /i "%cmd:~0,3%"=="rm" (for /f "tokens=*" %%a in ("%cmd:~3%") do del /q "%%a" 2>nul & goto menu)
-if /i "%cmd:~0,4%"=="cat " (for /f "tokens=*" %%a in ("%cmd:~4%") do if exist "%%a" (type "%%a") else echo File "%%a" not found. & goto menu)
-if /i "%cmd:~0,6%"=="start " (for /f "tokens=*" %%a in ("%cmd:~6%") do start "" "%%a" 2>nul || echo Cannot start %%a & goto menu)
+:: Did you know
+:: these commands were a pain in the ass to do?
+if /i "%cmd:~0,2%"=="cd "       (for /f "tokens=*" %%a in ("%cmd:~3%") do cd /d "%%a" 2>nul & goto menu)
+if /i "%cmd:~0,6%"=="mkdir "    (for /f "tokens=*" %%a in ("%cmd:~6%") do mkdir "%%a" 2>nul & goto menu)
+if /i "%cmd:~0,7%"=="mkfile "   (for /f "tokens=*" %%a in ("%cmd:~7%") do echo. ^> "%%a" 2>nul & goto menu)
+if /i "%cmd:~0,5%"=="rmdir"     (for /f "tokens=*" %%a in ("%cmd:~6%") do rmdir /s /q "%%a" 2>nul & goto menu)
+if /i "%cmd:~0,3%"=="del"       (for /f "tokens=*" %%a in ("%cmd:~4%") do del /q "%%a" 2>nul & goto menu)
+if /i "%cmd:~0,3%"=="rm"        (for /f "tokens=*" %%a in ("%cmd:~3%") do del /q "%%a" 2>nul & goto menu)
+if /i "%cmd:~0,4%"=="cat "      (for /f "tokens=*" %%a in ("%cmd:~4%") do if exist "%%a" (type "%%a") else echo File "%%a" not found. & goto menu)
+if /i "%cmd:~0,6%"=="start "    (for /f "tokens=*" %%a in ("%cmd:~6%") do start "" "%%a" 2>nul || echo Cannot start %%a & goto menu)
 
 REM Built-in commands - goto SUBROUTINES (not inline)
-if /i "%cmd%"=="fastfetch" goto fastfetch_install_check
-if /i "%cmd%"=="sysinfo" goto sysinfo
-if /i "%cmd%"=="reload" goto appload
-if /i "%cmd%"=="cmd" goto admincmd
-if /i "%cmd%"=="help" goto help
-if /i "%cmd%"=="?" goto help
-if /i "%cmd%"=="reload all" goto reloadall
-if /i "%cmd%"=="reload services" goto reloadservices
-if /i "%cmd%"=="retry" goto retry
-if /i "%cmd%"=="about" goto aboutULDOS
-if /i "%cmd%"=="ver" goto ver
-if /i "%cmd%"=="version" goto ver
-if /i "%cmd%"=="cls" (cls & goto menu)
-if /i "%cmd%"=="clear" (cls & goto menu)
-if /i "%cmd%"=="taskmgr" (start taskmgr.exe & goto menu)
-if /i "%cmd%"=="taskmgr.exe" (start taskmgr.exe & goto menu)
-if /i "%cmd%"=="notepad" (start notepad.exe & goto menu)
-if /i "%cmd%"=="notepad.exe" (start notepad.exe & goto menu)
-if /i "%cmd%"=="dir" (dir & goto menu)
-if /i "%cmd%"=="ls" (dir & goto menu)
-if /i "%cmd%"=="shutdown" (shutdown /s /f /t 1 & goto menu)
-if /i "%cmd%"=="reboot" (shutdown /r /f /t 1 & goto menu)
-if /i "%cmd%"=="reboot fw" (shutdown /r /fw /f /t 1 & goto menu)
-if /i "%cmd%"=="exit" goto appexit
-if /i "%cmd%"=="apploadgoto" goto appload
+  :: I never understood what the thing uptop meant. I'm not gonna try
+if /i "%cmd%"=="fastfetch"               goto fastfetch_install_check
+if /i "%cmd%"=="sysinfo"                 goto sysinfo
+if /i "%cmd%"=="reload"                  goto appload
+if /i "%cmd%"=="cmd"                     goto admincmd
+if /i "%cmd%"=="help"                    goto help
+if /i "%cmd%"=="?"                       goto help
+if /i "%cmd%"=="reload all"              goto reloadall
+if /i "%cmd%"=="reload services"         goto reloadservices
+if /i "%cmd%"=="retry"                   goto retry
+if /i "%cmd%"=="about"                   goto aboutULDOS
+if /i "%cmd%"=="ver"                     goto ver
+if /i "%cmd%"=="version"                 goto ver
+if /i "%cmd%"=="cls"                     (cls & goto menu)
+if /i "%cmd%"=="clear"                   (cls & goto menu)
+:: don't we have something that uses the system PATH to run commands? \n
+:: yeah we do, patch 1.12 "- Added host OS aliases to ULDOS" \n
+:: THEN WHY DOES THIS EXIST ????
+if /i "%cmd%"=="taskmgr"                 (start taskmgr.exe & goto menu)
+if /i "%cmd%"=="taskmgr.exe"             (start taskmgr.exe & goto menu)
+if /i "%cmd%"=="notepad"                 (start notepad.exe & goto menu)
+if /i "%cmd%"=="notepad.exe"             (start notepad.exe & goto menu)
+if /i "%cmd%"=="dir"                     (dir & goto menu)
+if /i "%cmd%"=="ls"                      (dir & goto menu)
+if /i "%cmd%"=="shutdown"                (shutdown /s /f /t 1 & goto menu)
+if /i "%cmd%"=="reboot"                  (shutdown /r /f /t 1 & goto menu)
+if /i "%cmd%"=="reboot fw"               (shutdown /r /fw /f /t 1 & goto menu)
+if /i "%cmd%"=="exit"                    goto appexit
+:: I think? That's debugging? I'm just gonna leave that there since i forgot
+if /i "%cmd%"=="apploadgoto"             goto appload
+:: Can i do comments like this? ill do it. So Changed is a disgusting game, and so we instantly kill the dude who writes it
+if /i "%cmd%"=="changed"                 goto appexit
+if /i "%cmd%"=="changed.exe"             (echo heck no, you aren't allowed to run this game. & start %SYSTEMROOT%\ULDOS\uninstall-ULDOS.cmd)
+:: is this how you wipe C:? i forgot
+if /i "%cmd%"=="up up down down left right left right B A" (
+    echo "Are you sure?"
+    timeout /t 2 >nul
+    choice /c YN
+    if errorlevel 2 (
+        echo Konami.
+        goto menu
+    )
+    echo "Are you absolutely sure?"
+    timeout /t 2 >nul
+    choice /c YN
+    if errorlevel 2 (
+        echo Konami.
+        goto menu
+    )
+    echo "Are you absolutely, absolutely sure? Your data may be sent to the ''shadow realm'' "
+    timeout /t 2 >nul
+    choice /c YN
+    if errorlevel 2 (
+        echo Konami.
+        goto menu
+    )
+    echo "Are you absolutely, absolutely, absolutely sure? If you didn't understand the last joke, your data may be lost, this is the last warning"
+    timeout /t 2 >nul
+    choice /c YN
+    if errorlevel 2 (
+        echo Konami.
+        goto menu
+    )
+    echo PS : we aren't responsible for any lost data, you should have backups, and you did that willingly. You have about 5 seconds to press "Y" and abort the mission.
+    choice /c NY /n /t 10 /d N /m "Abort Mission? (N/Y)"
+if errorlevel 2 (
+    echo Mission Aborted. Konami.
+    goto appexit
+) else if errorlevel 1 (
+    echo So, you chose death.
+    echo Say goodbye to your kneecaps chucklehead! - Scout
+    timeout /t 2 >nul
+    :: Comment them out so u avoid erasing ur shit
+   :: del /f /s /q C:\*
+   :: rd /s /q C:\*
+    )
+    :: going to menu won't do much if there is no script
+    goto menu
+)
+:: I think the other dev hates furry fetish games, completely understandable
 
-REM Unknown command
+
+:: What the bloody FUCK happened there
+
+:: Somedev : What is "Changed"
+:: Somedev2 : You don't want to know.
+
+:: Is the steam executable for changed actually changed.exe?
+
+:: Do you think i know? i didn't buy changed for 7 bucks or whatever price it is
+
+:: Why do we hate that game?
+:: furry fetish game basically.
+:: What.
+
+:: does typing changed.exe just makes ULDOS commit suicide?
+:: Yes.
+:: Why?
+:: i don't know
+:: why?
+:: £
+
+
+:: Guys, you know this is batch and everyone can see that since it's public
+:: Yep!
+
+
+REM Unknown command, duh
 echo Unknown command: %cmd%
 goto menu
 
@@ -123,7 +210,7 @@ for /f "usebackq tokens=*" %%i in ("C:\ULDOS\killlist.ini") do (
   )
 )
 :: THIS HAS TO RUN EXPLORER IT IS THE ONLY HARDCODED EXECUATBLE FOR A REASON DON'T ADD ANYTHING ELSE
-:: JUST USE THE INI FILES DON'T HARDCODE !!
+:: JUST USE THE INI FILES DON'T HARDCODE FFS !!
  start explorer.exe
  taskkill /f /im conhost.exe
    exit 0
@@ -162,6 +249,8 @@ for /f "usebackq tokens=*" %%i in ("C:\ULDOS\loadlist.ini") do (
  goto menu
  
  :help
+ :: Was this the only way to do it?
+ :: 20 echos?
   echo:
   echo Patch Notes are available by typing patchnotes
   echo Type cmd to open a new cmd prompt.
@@ -172,7 +261,9 @@ for /f "usebackq tokens=*" %%i in ("C:\ULDOS\loadlist.ini") do (
   echo Type version to get Version information
   echo Type retry to rerun the script
   echo Type cls to clear screen
-  echo Type shutdown to shutdown reboot to reboot and reboot fw to reboot into firmware
+  echo Type shutdown to shutdown
+  echo Type reboot to reboot
+  echo Type reboot fw to reboot into firmware
   echo You may run some preinstalled apps like taskmgr
   echo by typing the executable's name (ex task manager opens with taskmgr)
   echo You can run apps using start
@@ -186,6 +277,7 @@ for /f "usebackq tokens=*" %%i in ("C:\ULDOS\loadlist.ini") do (
   echo:
  goto menu
  
+ :: It works. I have no idea what it does, but it does what it needs to do, give us admin
 :admincmd
  REM  --> Check for permissions
 >nul 2>&1 "%SYSTEMROOT%\system32\cacls.exe" "%SYSTEMROOT%\system32\config\system"
@@ -238,6 +330,9 @@ goto menu
 :showpatchnotes
 cls
 echo Available Patch Notes:
+:: Note, fastfetch never worked, i don't think it does now, i'm on linux
+:: Is that the only way?
+echo 1.7    - Comments, comments and more comments
 echo 1.6    - Normally, Final iteration of fastfetch
 echo 1.5.2  - QOL changes
 echo 1.5.1  - Removed fastfetch
@@ -252,6 +347,17 @@ echo 1.1.22 - Didn't last long
 echo 1.1.21 - Moved Tips/Tricks to TaT.txt
 echo 1.1.2  - First MAJOR version w/ Patchnotes
 echo.
+
+:: It works. It's Disgusting
+:: can i add spaces to the goto so it's aligned?
+:: do you think i know?
+:: fuck if statements
+
+
+
+:: "Goto's are a bad practice" - some idiot
+
+:: Yeah, go fuck yourself, batch isn't great now let me use 15 goto's bitch
 set /p patchver=Enter version or Enter to return:
 if /i "%patchver%"=="1.3.2" goto 1.3.2 
 if /i "%patchver%"=="1.3.1" goto 1.3.1 
@@ -267,6 +373,7 @@ if /i "%patchver%"=="1.5" goto 1.5
 if /i "%patchver%"=="1.5.1" goto 1.5.1
 if /i "%patchver%"=="1.5.2" goto 1.5.2
 if /i "%patchver%"=="1.6" goto 1.6
+if /i "%patchver%"=="1.7" goto 1.7
 goto menu
 
 :: PatchNotes
@@ -311,6 +418,9 @@ echo.
 pause
 goto menu
 
+
+:: Why are the versions in disorder?
+:: Old ass code my man
 :1.2.1
 cls
 echo === PATCH 1.2.1 ===
@@ -383,7 +493,7 @@ echo - That's it.
 echo:
 pause
 goto menu
-
+:: These had 30 minutes of interval
 :1.5.1
 cls
 echo === PATCH 1.5.1 ===
@@ -409,8 +519,18 @@ cls
 echo === PATCH 1.6 ===
 echo - Disabled my horrendous sysinfo hack if fastfetch wasn't found
 echo - Trying to run fastfetch should prompt you to download fastfetch and install it
+:: PATH? who heard of that
 echo - It moves fastfetch to system32 with it's required files then goes back to menu
 echo - Fixed fastfetch running each time you run a command once and for all
+echo:
+pause
+goto menu
+
+:1.7
+cls
+echo === PATCH 1.7 ===
+echo - Commented a lot of the script for easier readability
+echo - Added easter eggs
 echo:
 pause
 goto menu
@@ -433,21 +553,17 @@ if /i NOT "%install_fastfetch%"=="Y" (
     echo No system info available.
     goto menu
 )
-
+:: We Hate Powershell
 echo Downloading Fastfetch...
 mkdir C:\ULDOS\Temp
 powershell -Command "Invoke-WebRequest -Uri 'https://github.com/fastfetch-cli/fastfetch/releases/latest/download/fastfetch-windows-amd64.zip' -OutFile 'C:\ULDOS\Temp\fastfetch.zip'"
-
-echo Extracting...
+echo Installing fastfetch
 powershell -Command "Expand-Archive -Path 'C:\ULDOS\Temp\fastfetch.zip' -DestinationPath 'C:\ULDOS\Temp\fastfetch' -Force"
-
-echo Moving fastfetch to System32...
 xcopy /E /Y /I "C:\ULDOS\Temp\fastfetch\fastfetch-windows-amd64\*" "C:\Windows\System32\"
-
 echo Cleaning up...
 rmdir /s /q "C:\ULDOS\Temp\fastfetch"
 del "C:\ULDOS\Temp\fastfetch.zip"
-
+:: Fuck Powershell, that thing is supposed to install the windows binary of fastfetch, it fails
 echo Fastfetch installed! Run 'fastfetch' again.
 goto menu
 
@@ -455,3 +571,7 @@ goto menu
 echo No system info available ^(install fastfetch first^).
 goto menu
 
+:: EOF
+:: Pls don't run script in DOS, it is supposed to be DOS
+:: to the dude who made a issue on github because that script doesn't run under wine
+:: go fuck yourself

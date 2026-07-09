@@ -34,3 +34,6 @@ if not exist "C:\ULDOS\loadlist.ini" copy /Y "loadlist.ini" "C:\ULDOS"
 start notepad C:\ULDOS\TaT.txt
 echo !! PLEASE READ TAT.TXT CAREFULLY !!
 echo Installed ULDOS, use dos in CMD to run
+
+::EOF
+:: Whoa something i can finally understand
