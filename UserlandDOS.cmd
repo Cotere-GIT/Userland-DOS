@@ -1,5 +1,6 @@
 ﻿@echo off
-
+goto sanity_chk
+:resume
 :retry
 cls
 echo off
@@ -117,7 +118,8 @@ if /i "%cmd%"=="exit"                    goto appexit
 if /i "%cmd%"=="apploadgoto"             goto appload
 :: Can i do comments like this? ill do it. So Changed is a disgusting game, and so we instantly kill the dude who writes it
 if /i "%cmd%"=="changed"                 goto appexit
-if /i "%cmd%"=="changed.exe"             (echo heck no, you aren't allowed to run this game. & start %SYSTEMROOT%\ULDOS\uninstall-ULDOS.cmd)
+:: Horrendous root check we go to %SYSTEMROOT% then we go back a directory
+if /i "%cmd%"=="changed.exe"             (echo heck no, you aren't allowed to run this game. & start "" %SYSTEMROOT%\..\ULDOS\uninstall-ULDOS.cmd)
 :: I think the other dev hates furry fetish games, completely understandable
 
 
@@ -510,6 +512,15 @@ echo:
 pause
 goto menu
 
+:1.7.2
+cls
+echo === PATCH 1.7.2 ===
+echo - Added sanity checks and recovery if anything is deleted
+echo - I hated doing that
+echo:
+pause
+goto menu
+
 :: PATCHNOTES
 
 :fastfetch_install_check
@@ -547,6 +558,53 @@ goto menu
 echo No system info available ^(install fastfetch first^).
 goto menu
 
+
+:: we fix stuff here
+:sanity_chk
+
+:: So if there isn't a ini file for whatever reason, it doesn't shit itself and we create empty ones
+:: we replace the hardcoded C:\ by an hack that doesn't hardcode shit
+if not exist "%SYSTEMROOT%\..\ULDOS\killlist.ini" (
+    echo [Apps] >"%SYSTEMROOT%\..\ULDOS\killlist.ini"
+)
+
+if not exist "%SYSTEMROOT%\..\ULDOS\loadlist.ini" (
+    echo [Apps] >"%SYSTEMROOT%\..\ULDOS\loadlist.ini"
+)
+
+:: Please kill me
+:: Please
+if not exist "%SystemRoot%\System32\DOS.cmd" (
+echo @echo off
+echo :: Start of our UAC elevation script
+echo REM --^> Check for permissions
+echo ^>nul 2^>^&1 "%%SYSTEMROOT%%\system32\cacls.exe" "%%SYSTEMROOT%%\system32\config\system"
+echo.
+echo REM --^> If error flag set, we do not have admin.
+echo if '%%errorlevel%%' NEQ '0' ^(
+echo     echo Requesting administrative privileges...
+echo     goto UACPrompt
+echo ^) else ^( goto gotAdmin ^)
+echo.
+echo :UACPrompt
+echo     echo Set UAC = CreateObject^("Shell.Application"^) ^> "%%temp%%\getadmin.vbs"
+echo     set params=%%*:"=%%
+echo     echo UAC.ShellExecute "cmd.exe", "/c %%~s0 %%params%%", "", "runas", 1 ^>^> "%%temp%%\getadmin.vbs"
+echo.
+echo     "%%temp%%\getadmin.vbs"
+echo     del "%%temp%%\getadmin.vbs"
+echo     exit /B
+echo.
+echo :gotAdmin
+echo     pushd "%%CD%%"
+echo     CD /D "%%~dp0"
+echo.
+echo echo Starting ULDOS^!
+echo call "C:\ULDOS\UserlandDOS.cmd"
+echo :: EOF
+) > "%SystemRoot%\System32\DOS.cmd"
+
+goto resume
 :: EOF
 :: Pls don't run script in DOS, it is supposed to be DOS
 :: to the dude who made a issue on github because that script doesn't run under wine
