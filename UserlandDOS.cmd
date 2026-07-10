@@ -272,7 +272,7 @@ goto menu
 :aboutULDOS
 cls
 echo ULDOS -- Made by Cotere
-echo Version 1.7.1
+echo Version 1.7.2
 echo:
 echo:
 echo ULDOS is a utility to run Windows without an explorer (Like going back to older days)
@@ -289,7 +289,7 @@ echo:
 goto menu
 
 :ver
-echo ULDOS VER -- 1.7.1 -- Cotere
+echo ULDOS VER -- 1.7.2 -- Cotere
 echo:
 goto menu
 
@@ -342,6 +342,7 @@ if /i "%patchver%"=="1.5.2" goto 1.5.2
 if /i "%patchver%"=="1.6" goto 1.6
 if /i "%patchver%"=="1.7" goto 1.7
 if /i "%patchver%"=="1.7" goto 1.7.1
+if /i "%patchver%"=="1.7" goto 1.7.2
 goto menu
 
 :: PatchNotes
