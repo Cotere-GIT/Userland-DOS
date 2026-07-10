@@ -4,9 +4,13 @@
 cls
 echo off
 :serviceload
-   rem Load your services here. (we load by default net services)
-
- net start
+net start Dhcp
+net start Dnscache
+net start NlaSvc
+net start Netman
+net start Netprofm
+net start WlanSvc
+net start LanmanWorkstation
 
  :: don't we have to userinit then kill explorer so we get net, since if we run ULDOS as shell?
  :: honestly, i have no fucking idea
@@ -114,52 +118,6 @@ if /i "%cmd%"=="apploadgoto"             goto appload
 :: Can i do comments like this? ill do it. So Changed is a disgusting game, and so we instantly kill the dude who writes it
 if /i "%cmd%"=="changed"                 goto appexit
 if /i "%cmd%"=="changed.exe"             (echo heck no, you aren't allowed to run this game. & start %SYSTEMROOT%\ULDOS\uninstall-ULDOS.cmd)
-:: is this how you wipe C:? i forgot
-if /i "%cmd%"=="up up down down left right left right B A" (
-    echo "Are you sure?"
-    timeout /t 2 >nul
-    choice /c YN
-    if errorlevel 2 (
-        echo Konami.
-        goto menu
-    )
-    echo "Are you absolutely sure?"
-    timeout /t 2 >nul
-    choice /c YN
-    if errorlevel 2 (
-        echo Konami.
-        goto menu
-    )
-    echo "Are you absolutely, absolutely sure? Your data may be sent to the ''shadow realm'' "
-    timeout /t 2 >nul
-    choice /c YN
-    if errorlevel 2 (
-        echo Konami.
-        goto menu
-    )
-    echo "Are you absolutely, absolutely, absolutely sure? If you didn't understand the last joke, your data may be lost, this is the last warning"
-    timeout /t 2 >nul
-    choice /c YN
-    if errorlevel 2 (
-        echo Konami.
-        goto menu
-    )
-    echo PS : we aren't responsible for any lost data, you should have backups, and you did that willingly. You have about 5 seconds to press "Y" and abort the mission.
-    choice /c NY /n /t 10 /d N /m "Abort Mission? (N/Y)"
-if errorlevel 2 (
-    echo Mission Aborted. Konami.
-    goto appexit
-) else if errorlevel 1 (
-    echo So, you chose death.
-    echo Say goodbye to your kneecaps chucklehead! - Scout
-    timeout /t 2 >nul
-    :: Comment them out so u avoid erasing ur shit
-   :: del /f /s /q C:\*
-   :: rd /s /q C:\*
-    )
-    :: going to menu won't do much if there is no script
-    goto menu
-)
 :: I think the other dev hates furry fetish games, completely understandable
 
 
@@ -244,7 +202,13 @@ for /f "usebackq tokens=*" %%i in ("C:\ULDOS\loadlist.ini") do (
  goto menu
  
   :reloadservices
-   net start
+   net start Dhcp
+   net start Dnscache
+   net start NlaSvc
+   net start Netman
+   net start Netprofm
+   net start WlanSvc
+   net start LanmanWorkstation
    cls
  goto menu
  
@@ -306,12 +270,12 @@ goto menu
 :aboutULDOS
 cls
 echo ULDOS -- Made by Cotere
-echo Version 1.6
+echo Version 1.7.1
 echo:
 echo:
 echo ULDOS is a utility to run Windows without an explorer (Like going back to older days)
-echo ULDOS needs admin priviliege to run some of it's apps; but ULDOS is free sofware
-echo ...Aslong as you credit me.
+echo ULDOS needs admin priviliege to run some of it's apps; ULDOS is free sofware
+echo ...Aslong as you credit us.
 echo:
 echo:
 echo Build created on Windows 10 == No UWP apps installed
@@ -323,7 +287,7 @@ echo:
 goto menu
 
 :ver
-echo ULDOS VER -- 1.6 -- Cotere
+echo ULDOS VER -- 1.7.1 -- Cotere
 echo:
 goto menu
 
@@ -332,6 +296,7 @@ cls
 echo Available Patch Notes:
 :: Note, fastfetch never worked, i don't think it does now, i'm on linux
 :: Is that the only way?
+echo 1.7.1  - Fastfetch installs correctly now!
 echo 1.7    - Comments, comments and more comments
 echo 1.6    - Normally, Final iteration of fastfetch
 echo 1.5.2  - QOL changes
@@ -374,6 +339,7 @@ if /i "%patchver%"=="1.5.1" goto 1.5.1
 if /i "%patchver%"=="1.5.2" goto 1.5.2
 if /i "%patchver%"=="1.6" goto 1.6
 if /i "%patchver%"=="1.7" goto 1.7
+if /i "%patchver%"=="1.7" goto 1.7.1
 goto menu
 
 :: PatchNotes
@@ -535,6 +501,15 @@ echo:
 pause
 goto menu
 
+:1.7.1
+cls
+echo === PATCH 1.7.1 ===
+echo - Fastfetch finally fetches itself correctly and installs itself correctly
+echo - It was due to a problem since it tought it was in an subdirectory
+echo:
+pause
+goto menu
+
 :: PATCHNOTES
 
 :fastfetch_install_check
@@ -559,7 +534,8 @@ mkdir C:\ULDOS\Temp
 powershell -Command "Invoke-WebRequest -Uri 'https://github.com/fastfetch-cli/fastfetch/releases/latest/download/fastfetch-windows-amd64.zip' -OutFile 'C:\ULDOS\Temp\fastfetch.zip'"
 echo Installing fastfetch
 powershell -Command "Expand-Archive -Path 'C:\ULDOS\Temp\fastfetch.zip' -DestinationPath 'C:\ULDOS\Temp\fastfetch' -Force"
-xcopy /E /Y /I "C:\ULDOS\Temp\fastfetch\fastfetch-windows-amd64\*" "C:\Windows\System32\"
+:: The xcopy command was a pain in the ass because it thought that fastfetch was copied to a subdirectory of fastfetch, it wasn't 
+xcopy /E /Y /I "C:\ULDOS\Temp\fastfetch\*" "C:\Windows\System32\"
 echo Cleaning up...
 rmdir /s /q "C:\ULDOS\Temp\fastfetch"
 del "C:\ULDOS\Temp\fastfetch.zip"
